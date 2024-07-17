@@ -1,0 +1,33 @@
+CREATE TABLE Users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(64) UNIQUE NOT NULL,
+    email VARCHAR(120) UNIQUE NOT NULL,
+    password_hash VARCHAR(128) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Transactions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES Users(id) NOT NULL,
+    type VARCHAR(10) NOT NULL CHECK (type IN ('income', 'expense')),
+    amount DECIMAL(10, 2) NOT NULL,
+    category_id INTEGER REFERENCES Categories(id) NOT NULL,
+    date DATE NOT NULL,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Categories (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(64) UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Budgets (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES Users(id) NOT NULL,
+    category_id INTEGER REFERENCES Categories(id) NOT NULL,
+    limits DECIMAL(10, 2) NOT NULL,
+    spent DECIMAL(10, 2) DEFAULT 0 NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

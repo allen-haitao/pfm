@@ -1,2 +1,3 @@
 # pfm
-personal finance management
+
+personal finance management for COMPX576
