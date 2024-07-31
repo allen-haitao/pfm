@@ -152,11 +152,11 @@ class DashboardView(APIView):
         - recent_transactions: list of transaction objects
         """
         user = request.user
-        total_income = Transaction.objects.filter(user=user, type='income').aggregate(Sum('amount'))['amount__sum'] or 0.0
-        total_expenses = Transaction.objects.filter(user=user, type='expense').aggregate(Sum('amount'))['amount__sum'] or 0.0
+        total_income = Transactions.objects.filter(user_id=user.id, types='income').aggregate(Sum('amount'))['amount__sum'] or 0.0
+        total_expenses = Transactions.objects.filter(user_id=user.id, types='expense').aggregate(Sum('amount'))['amount__sum'] or 0.0
         total_savings = total_income - total_expenses
 
-        recent_transactions = Transaction.objects.filter(user=user).order_by('-date')[:5]
+        recent_transactions = Transactions.objects.filter(user_id=user.id).order_by('-date')[:5]
         recent_transactions_data = TransactionSerializer(recent_transactions, many=True).data
 
         return Response({
@@ -174,7 +174,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Transaction.objects.filter(user=self.request.user)
+        return Transactions.objects.filter(user_id=self.request.user.id)
 
     @swagger_auto_schema(
         operation_description="List user transactions",
@@ -318,7 +318,7 @@ class BudgetViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Budget.objects.filter(user=self.request.user)
+        return Budgets.objects.filter(user_id=self.request.user.id)
 
     @swagger_auto_schema(
         operation_description="List user budgets",
@@ -448,7 +448,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Category.objects.filter(user=self.request.user)
+        return Categories.objects.filter(user_id=self.request.user.id)
 
     @swagger_auto_schema(
         operation_description="List user categories",
@@ -629,11 +629,11 @@ class ReportView(APIView):
         user = request.user
 
         # Calculate income and expense trends
-        income_trends = Transaction.objects.filter(user=user, type='income').values('date__year', 'date__month').annotate(total=Sum('amount')).order_by('date__year', 'date__month')
-        expense_trends = Transaction.objects.filter(user=user, type='expense').values('date__year', 'date__month').annotate(total=Sum('amount')).order_by('date__year', 'date__month')
+        income_trends = Transactions.objects.filter(user=user, type='income').values('date__year', 'date__month').annotate(total=Sum('amount')).order_by('date__year', 'date__month')
+        expense_trends = Transactions.objects.filter(user=user, type='expense').values('date__year', 'date__month').annotate(total=Sum('amount')).order_by('date__year', 'date__month')
 
         # Calculate expense categories for pie chart
-        expense_categories = Transaction.objects.filter(user=user, type='expense').values('category__name').annotate(total=Sum('amount')).order_by('category__name')
+        expense_categories = Transactions.objects.filter(user=user, type='expense').values('category__name').annotate(total=Sum('amount')).order_by('category__name')
 
         return Response({
             "income_trends": list(income_trends),
