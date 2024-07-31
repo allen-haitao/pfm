@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     "rest_framework_simplejwt",
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [
@@ -92,6 +93,13 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_SCHEMA_CLASS':
+        'rest_framework.schemas.AutoSchema',
+    'DEFAULT_PRASER_CLASSES':[
+        'rest_frameworks.prasers.FormPraser',
+        'rest_frameworks.prasers.MultiPartPraser',
+        'rest_frameworks.prasers.JSONPraser',
+    ]
 }
 
 AUTH_USER_MODEL = 'finance.CustomUser'
@@ -135,3 +143,18 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        "Bearer":{
+            'type': 'apiKey',
+            'in':'header',
+            'name':'Authorization',
+        }
+    }, 
+    'LOGIN_URL': 'login',
+    'APIS_SORTER': 'alpha',
+    'JSON_EDITOR': True,
+    'OPERATIONS_SORTER': 'alpha',
+    'VALIDATOR_URL': None,
+    'SHOW_REQUEST_HEADERs': True,   
+}

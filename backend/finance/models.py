@@ -1,15 +1,18 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+#user management
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
 
+#Category of transactions
 class Categories(models.Model):
     id = models.AutoField(primary_key=True)
     user_id = models.ForeignKey(CustomUser, null=False, on_delete=models.CASCADE, related_name="categories", db_constraint=False)
     name = models.CharField(max_length=10)
     create_time = models.DateTimeField(auto_now_add=True)
-
+  
+#transaction
 class Transactions(models.Model):
     TRANS_TYPES = (
         ('income', 'income'),
@@ -24,7 +27,8 @@ class Transactions(models.Model):
     notes = models.TextField()
     create_time = models.DateTimeField(auto_now_add=True)
 
-class budgets(models.Model):
+#budget
+class Budgets(models.Model):
     id = models.AutoField(primary_key=True)
     user_id = models.ForeignKey(CustomUser, null=False, on_delete=models.DO_NOTHING, related_name="budgets", db_constraint=False)
     category_id = models.ForeignKey(Categories, null=False, on_delete=models.DO_NOTHING, related_name="budget_category", db_constraint=False)
