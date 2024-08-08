@@ -1,4 +1,4 @@
-from rest_framework import generics, viewsets, mixins
+from rest_framework import generics, viewsets, mixins, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -217,7 +217,14 @@ class TransactionViewSet(viewsets.ModelViewSet):
         - date: str
         - notes: str
         """
-        return super().create(request, *args, **kwargs)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        category = Categories.objects.get(id=request.data['category_id'])
+        serializer.save(user=request.user, category=category)
+        
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        #return super().create(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_description="Retrieve a specific transaction",
@@ -485,7 +492,12 @@ class CategoryViewSet(viewsets.ModelViewSet):
         - name: str
         - category_type: str
         """
-        return super().create(request, *args, **kwargs)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=request.user)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        #return super().create(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_description="Retrieve a specific category",

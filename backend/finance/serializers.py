@@ -41,6 +41,7 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Categories
         fields = ['id', 'name']
+        read_only_fields = ['id']
 
 class BudgetSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
@@ -49,7 +50,16 @@ class BudgetSerializer(serializers.ModelSerializer):
         fields = ['id', 'category', 'limits', 'spent']
 
 class TransactionSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(read_only=True)
+    #category = CategorySerializer(read_only=True)
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Categories.objects.all(),
+        write_only=True,
+        source='category'
+    )
+
+    amount = serializers.DecimalField(max_digits=10, decimal_places=2) 
+
     class Meta:
         model = Transactions
-        fields = ['id', 'types', 'amount', 'category', 'occu_date', 'notes']
+        fields = ['id', 'types', 'amount', 'category_id', 'occu_date', 'notes']
+        read_only_fields = ['id', 'category']
