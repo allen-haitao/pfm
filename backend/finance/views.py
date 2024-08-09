@@ -156,7 +156,7 @@ class DashboardView(APIView):
         total_expenses = Transactions.objects.filter(user_id=user.id, types='expense').aggregate(Sum('amount'))['amount__sum'] or 0.0
         total_savings = total_income - total_expenses
 
-        recent_transactions = Transactions.objects.filter(user_id=user.id).order_by('-date')[:5]
+        recent_transactions = Transactions.objects.filter(user_id=user.id).order_by('occu_date')[:5]
         recent_transactions_data = TransactionSerializer(recent_transactions, many=True).data
 
         return Response({
@@ -363,7 +363,14 @@ class BudgetViewSet(viewsets.ModelViewSet):
         - limit: float
         - spent: float
         """
-        return super().create(request, *args, **kwargs)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        category = Categories.objects.get(id=request.data['category_id'])
+        serializer.save(user=request.user, category=category)
+        
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        #return super().create(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_description="Retrieve a specific budget",
@@ -455,7 +462,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Categories.objects.filter(user_id=self.request.user.id)
+        return Categories.objects.for_user(self.request.user)
 
     @swagger_auto_schema(
         operation_description="List user categories",
@@ -641,11 +648,11 @@ class ReportView(APIView):
         user = request.user
 
         # Calculate income and expense trends
-        income_trends = Transactions.objects.filter(user=user, type='income').values('date__year', 'date__month').annotate(total=Sum('amount')).order_by('date__year', 'date__month')
-        expense_trends = Transactions.objects.filter(user=user, type='expense').values('date__year', 'date__month').annotate(total=Sum('amount')).order_by('date__year', 'date__month')
+        income_trends = Transactions.objects.filter(user=user, types='income').values('occu_date').annotate(total=Sum('amount')).order_by('occu_date')
+        expense_trends = Transactions.objects.filter(user=user, types='expense').values('occu_date').annotate(total=Sum('amount')).order_by('occu_date')
 
         # Calculate expense categories for pie chart
-        expense_categories = Transactions.objects.filter(user=user, type='expense').values('category__name').annotate(total=Sum('amount')).order_by('category__name')
+        expense_categories = Transactions.objects.filter(user=user, types='expense').values('category__name').annotate(total=Sum('amount')).order_by('category__name')
 
         return Response({
             "income_trends": list(income_trends),

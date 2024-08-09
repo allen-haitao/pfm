@@ -1,16 +1,34 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models import Q
 
 #user management
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
 
+class CategoryManager(models.Manager):
+    def for_user(self, user):
+        """
+        Return categories that are either global (user is null) or specific to the given user.
+        """
+        return self.filter(Q(user=user) | Q(user__isnull=True))
+
 #Category of transactions
 class Categories(models.Model):
+    CATEGORY_TYPES = [
+        ('income', 'Income'),
+        ('expense', 'Expense'),
+    ]
     id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(CustomUser, null=False, on_delete=models.CASCADE, related_name="categories", db_constraint=False)
+    user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE, related_name="categories", db_constraint=False)
     name = models.CharField(max_length=50)
     create_time = models.DateTimeField(auto_now_add=True)
+    category_type = models.CharField(max_length=7, choices=CATEGORY_TYPES)
+
+    objects = CategoryManager()
+
+    def __str__(self):
+        return f"{self.name} ({self.get_category_type_display()})"
   
 #transaction
 class Transactions(models.Model):
