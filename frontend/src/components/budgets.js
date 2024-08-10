@@ -1,32 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import api from '../services/api';
+import React from 'react';
+import './Budgets.css';
 
 const Budgets = () => {
-    const [budgets, setBudgets] = useState([]);
-
-    useEffect(() => {
-        const fetchBudgets = async () => {
-            try {
-                const response = await api.get('/budgets/');
-                setBudgets(response.data);
-            } catch (error) {
-                console.error('Error fetching budgets:', error);
-            }
-        };
-
-        fetchBudgets();
-    }, []);
-
     return (
-        <div>
-            <h2>Budgets</h2>
-            <ul>
-                {budgets.map(budget => (
-                    <li key={budget.id}>
-                        {budget.category.name} - Limit: {budget.limit} - Spent: {budget.spent}
-                    </li>
-                ))}
-            </ul>
+        <div className="budgets">
+            <h1>Budgets</h1>
+            <div className="budgets-list">
+                {/* Render budget cards or list items here */}
+            </div>
         </div>
     );
 };

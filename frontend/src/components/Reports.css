@@ -1,0 +1,23 @@
+.reports {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .reports h1 {
+    margin-bottom: 20px;
+    font-size: 28px;
+  }
+  
+  .reports-charts {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-around;
+  }
+  
+  .reports .download-report {
+    margin-top: 40px;
+    display: block;
+    text-align: center;
+  }

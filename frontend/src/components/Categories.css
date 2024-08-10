@@ -1,0 +1,28 @@
+.categories {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .categories h1 {
+    margin-bottom: 20px;
+    font-size: 28px;
+  }
+  
+  .categories .add-category {
+    margin-bottom: 20px;
+  }
+  
+  .categories ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .categories ul li {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+  }

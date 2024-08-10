@@ -1,37 +1,42 @@
-import React, { useEffect, useState } from 'react';
-import api from '../services/api';
+import React from 'react';
+import './Dashboard.css';
 
 const Dashboard = () => {
-    const [dashboardData, setDashboardData] = useState({});
-
-    useEffect(() => {
-        const fetchDashboardData = async () => {
-            try {
-                const response = await api.get('/dashboard/');
-                setDashboardData(response.data);
-            } catch (error) {
-                console.error('Error fetching dashboard data:', error);
-            }
-        };
-
-        fetchDashboardData();
-    }, []);
-
     return (
-        <div>
-            <h2>Dashboard</h2>
-            <div>
-                <p>Total Income: {dashboardData.total_income}</p>
-                <p>Total Expenses: {dashboardData.total_expenses}</p>
-                <p>Total Savings: {dashboardData.total_savings}</p>
-                <h3>Recent Transactions:</h3>
-                <ul>
-                    {dashboardData.recent_transactions && dashboardData.recent_transactions.map(transaction => (
-                        <li key={transaction.id}>
-                            {transaction.date} - {transaction.amount} ({transaction.type})
-                        </li>
-                    ))}
-                </ul>
+        <div className="dashboard">
+            <h1>Welcome Back!</h1>
+            <div className="dashboard-cards">
+                <div className="dashboard-card">
+                    <h2>Total Income</h2>
+                    <p>$5000</p>
+                </div>
+                <div className="dashboard-card">
+                    <h2>Total Expenses</h2>
+                    <p>$3000</p>
+                </div>
+                <div className="dashboard-card">
+                    <h2>Budget Remaining</h2>
+                    <p>$2000</p>
+                </div>
+            </div>
+            <div className="dashboard-charts">
+                {/* Implement charts using a library like Chart.js or Recharts */}
+            </div>
+            <div className="recent-transactions">
+                <h2>Recent Transactions</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {/* Render transaction rows here */}
+                    </tbody>
+                </table>
             </div>
         </div>
     );
