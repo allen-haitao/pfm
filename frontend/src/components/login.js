@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import api from "../services/api"
 import './Login.css';
-
 
 
 const Login = ({ setAuth }) => {
@@ -11,17 +10,22 @@ const Login = ({ setAuth }) => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         try {
-            const response = await api.post('/login/', { email, password });
+            const response = await api.post('login/', {
+                email: email,
+                password: password,
+            });
+
             localStorage.setItem('access_token', response.data.access);
+            localStorage.setItem('refresh_token', response.data.refresh);
             setAuth(true);
-            console.log('User logged in:', response.data);
-        } catch (error) {
-            console.error('Error logging in user:', error);
+            navigate('/');
+        } catch (err) {
+            setError('Invalid email or password');
         }
-    }
+    };
 
     return (
         <div className="login-container">

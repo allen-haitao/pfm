@@ -20,10 +20,10 @@ const App = () => {
 
   return (
     <Router>
-      <Navbar isAuthenticated={isAuthenticated} />
+      <Navbar isAuthenticated={isAuthenticated} setAuth={setAuth} />
       <div className="main-content">
         <Routes>
-          <Route path="/register" element={isAuthenticated ? <Navigate to="/" /> : <Register />} />
+          <Route path="/register" element={isAuthenticated ? <Navigate to="/" /> : <Register setAuth={setAuth} />} />
           <Route path="/login" element={isAuthenticated ? <Navigate to="/" /> : <Login setAuth={setAuth} />} />
           <Route path="/profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />
           <Route path="/transactions" element={isAuthenticated ? <Transactions /> : <Navigate to="/login" />} />

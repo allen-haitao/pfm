@@ -1,23 +1,38 @@
-.reports {
-    background-color: white;
+.reports-container {
+    max-width: 800px;
+    margin: 50px auto;
     padding: 20px;
+    background-color: white;
     border-radius: 10px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
   }
   
-  .reports h1 {
+  .reports-container h1 {
     margin-bottom: 20px;
     font-size: 28px;
+    text-align: center;
   }
   
-  .reports-charts {
-    margin-top: 20px;
+  .report-controls {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
+    margin-bottom: 20px;
   }
   
-  .reports .download-report {
-    margin-top: 40px;
-    display: block;
+  .report-controls label {
+    font-size: 16px;
+  }
+  
+  .chart-container {
+    margin-bottom: 40px;
+  }
+  
+  .report-summary {
+    text-align: center;
+    font-size: 18px;
+  }
+  
+  .error {
+    color: red;
     text-align: center;
   }

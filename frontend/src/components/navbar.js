@@ -1,8 +1,16 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Navbar.css';
 
-const Navbar = ({ isAuthenticated }) => {
+const Navbar = ({ isAuthenticated, setAuth }) => {
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        setAuth(false);
+        window.location.assign('/');
+    };
     return (
         <nav className="navbar">
             <div className="navbar-container">
@@ -20,6 +28,15 @@ const Navbar = ({ isAuthenticated }) => {
                         <>
                             <li><Link to="/register">Register</Link></li>
                             <li><Link to="/login">Login</Link></li>
+                        </>
+                    )}
+                    {isAuthenticated && (
+                        <>
+                            <li><Link to="/"
+                                onClick={(e) => {
+                                    e.preventDefault(); // Prevent the default link behavior
+                                    handleLogout();     // Call the logout function
+                                }}>Logout</Link></li>
                         </>
                     )}
                 </ul>

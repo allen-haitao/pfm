@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-h)s+mrpn$_8kgh7e+&5pik&aykw#%g&bxulsp4bepa@=qv(xb^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*'] 
 
 
 # Application definition
@@ -38,21 +38,23 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "finance",
     "rest_framework",
-    "corsheaders",
     "rest_framework_simplejwt",
     "drf_yasg",
+    "corsheaders",
+    "finance",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+  
 ]
 
 ROOT_URLCONF = "backend.urls"
@@ -159,3 +161,7 @@ SWAGGER_SETTINGS = {
     'VALIDATOR_URL': None,
     'SHOW_REQUEST_HEADERs': True,   
 }
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True 
+CORS_ALLOW_HEADERS = ('*')

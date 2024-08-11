@@ -1,48 +1,42 @@
-.dashboard {
-    background-color: white;
+.dashboard-container {
+    max-width: 1000px;
+    margin: 50px auto;
     padding: 20px;
+    background-color: white;
     border-radius: 10px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
   }
   
-  .dashboard h1 {
+  .dashboard-container h1 {
     margin-bottom: 20px;
     font-size: 28px;
+    text-align: center;
   }
   
-  .dashboard-cards {
+  .dashboard-stats {
     display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
+    justify-content: space-between;
+    margin-bottom: 40px;
   }
   
   .dashboard-card {
-    background-color: #007BFF;
-    color: white;
+    flex: 1;
     padding: 20px;
+    margin: 0 10px;
+    background-color: #f9f9f9;
     border-radius: 5px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
     text-align: center;
-    flex: 1 1 calc(33.333% - 20px); /* 3 cards per row on desktop */
-    min-width: 200px;
   }
   
-  @media (max-width: 768px) {
-    .dashboard-card {
-      flex: 1 1 calc(50% - 20px); /* 2 cards per row on tablets */
-    }
+  .dashboard-card h2 {
+    margin-bottom: 10px;
+    font-size: 22px;
   }
   
-  @media (max-width: 480px) {
-    .dashboard-card {
-      flex: 1 1 100%; /* 1 card per row on phones */
-    }
-  }
-  
-  .dashboard-charts {
-    margin-top: 40px;
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
+  .dashboard-card p {
+    font-size: 24px;
+    margin: 0;
   }
   
   .recent-transactions {
@@ -54,13 +48,27 @@
     font-size: 24px;
   }
   
-  .recent-transactions table {
+  .transactions-table {
     width: 100%;
     border-collapse: collapse;
   }
   
-  .recent-transactions th, .recent-transactions td {
+  .transactions-table th,
+  .transactions-table td {
     padding: 12px;
     border: 1px solid #ddd;
     text-align: left;
+  }
+  
+  .transactions-table th {
+    background-color: #f9f9f9;
+  }
+  
+  .transactions-table td {
+    background-color: #fff;
+  }
+  
+  .error {
+    color: red;
+    text-align: center;
   }

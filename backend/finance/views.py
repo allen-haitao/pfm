@@ -9,6 +9,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .serializers import RegisterSerializer, UserSerializer, TransactionSerializer, BudgetSerializer, CategorySerializer
 from .models import Transactions, Budgets, Categories
+from decimal import Decimal
 
 User = get_user_model()
 
@@ -152,8 +153,8 @@ class DashboardView(APIView):
         - recent_transactions: list of transaction objects
         """
         user = request.user
-        total_income = Transactions.objects.filter(user_id=user.id, types='income').aggregate(Sum('amount'))['amount__sum'] or 0.0
-        total_expenses = Transactions.objects.filter(user_id=user.id, types='expense').aggregate(Sum('amount'))['amount__sum'] or 0.0
+        total_income = Transactions.objects.filter(user_id=user.id, types='income').aggregate(Sum('amount'))['amount__sum'] or Decimal('0.0')
+        total_expenses = Transactions.objects.filter(user_id=user.id, types='expense').aggregate(Sum('amount'))['amount__sum'] or Decimal('0.0')
         total_savings = total_income - total_expenses
 
         recent_transactions = Transactions.objects.filter(user_id=user.id).order_by('occu_date')[:5]

@@ -1,26 +1,41 @@
-.transactions {
-  background-color: white;
+/* Transactions.css */
+.transactions-container {
+  max-width: 800px;
+  margin: 0 auto;
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
-.transactions h1 {
-  margin-bottom: 20px;
-  font-size: 28px;
-}
-
-.transactions .add-transaction {
-  margin-bottom: 20px;
-}
-
-.transactions table {
+.transactions-table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 20px;
 }
 
-.transactions th, .transactions td {
-  padding: 12px;
+.transactions-table th, .transactions-table td {
   border: 1px solid #ddd;
+  padding: 8px;
   text-align: left;
+}
+
+.transactions-table th {
+  background-color: #f4f4f4;
+}
+
+.add-transaction-form, .edit-transaction-form {
+  margin-top: 20px;
+}
+
+.add-transaction-form select, .add-transaction-form input,
+.edit-transaction-form select, .edit-transaction-form input {
+  margin-right: 10px;
+  padding: 5px;
+}
+
+.add-transaction-form button, .edit-transaction-form button {
+  padding: 5px 10px;
+}
+
+.error {
+  color: red;
+  margin-top: 10px;
 }
