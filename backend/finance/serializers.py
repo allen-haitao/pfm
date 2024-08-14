@@ -52,7 +52,7 @@ class BudgetSerializer(serializers.ModelSerializer):
     )
     class Meta:
         model = Budgets
-        fields = ['id', 'category_id', 'category','limits', 'spent']
+        fields = ['id', 'category_id', 'category','limits', 'spent', 'period_type','start_date','end_date']
         read_only_fields = ['id', 'category_id']
 
 class TransactionSerializer(serializers.ModelSerializer):

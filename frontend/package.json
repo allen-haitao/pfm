@@ -5,6 +5,7 @@
   "private": true,
   "proxy": "http://localhost:8000",
   "dependencies": {
+    "@craco/craco": "^7.1.0",
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
@@ -12,17 +13,19 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.3",
+    "chart.js": "^4.4.3",
+    "date-fns": "^3.6.0",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.0",
-    "react-scripts": "^3.0.1",
+    "react-scripts": "^5.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "export NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
-    "build": "export NODE_OPTIONS=--openssl-legacy-provider && react-scripts build",
-    "test": "react-scripts test",
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -45,6 +48,10 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@babel/plugin-transform-class-properties": "^7.24.7",
+    "@babel/plugin-transform-private-methods": "^7.24.7",
+    "@babel/plugin-transform-private-property-in-object": "^7.24.7",
     "@babel/plugin-transform-runtime": "^7.24.7",
     "@babel/preset-env": "^7.25.3",
     "react-app-rewired": "^2.2.1"

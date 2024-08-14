@@ -1,4 +1,17 @@
-/* Budgets.css */
+.add-budget-form select,
+.add-budget-form input[type="number"],
+.add-budget-form input[type="date"],
+.add-budget-form label {
+    height: 30px; /* Ensure all elements have the same height */
+    padding: 5px 10px; /* Consistent padding */
+    font-size: 14px; /* Consistent font size */
+    box-sizing: border-box; /* Include padding and border in element's total width and height */
+}
+
+.add-budget-form label {
+    line-height: 30px; /* Vertically align text in label to match input height */
+}
+
 .budgets-container {
   max-width: 800px;
   margin: 0 auto;

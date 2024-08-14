@@ -10,6 +10,7 @@ from drf_yasg import openapi
 from .serializers import RegisterSerializer, UserSerializer, TransactionSerializer, BudgetSerializer, CategorySerializer
 from .models import Transactions, Budgets, Categories
 from decimal import Decimal
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -225,9 +226,15 @@ class TransactionViewSet(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
 
         if transaction.types == 'expense':
+            now = timezone.now().date()
             try:
                 # Find the corresponding budget
-                budget = Budgets.objects.get(category=transaction.category, user=transaction.user)
+                budget = Budgets.objects.get(
+                        category=transaction.category,
+                        user=transaction.user,
+                        start_date__lte=now,
+                        end_date__gte=now
+                    )
                 # Update the spent value
                 budget.spent += transaction.amount
                 budget.save()

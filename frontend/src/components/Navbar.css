@@ -1,6 +1,6 @@
 .navbar {
-    background-color: #161a8f;
-    color: white;
+    background-color: #0B3289;
+    color: #F8B37F;
     padding: 10px 20px;
     display: flex;
     justify-content: space-between;
@@ -22,7 +22,7 @@
     font-family: 'Raleway', sans-serif;
     font-size: 1.5rem;
     font-weight: 500;
-    color: #f0eff3;
+    color: #F8B37F;
   }
   
   .navbar-menu {
@@ -36,7 +36,7 @@
   }
   
   .navbar-menu li a {
-    color: white;
+    color: #F8B37F;
     text-decoration: none;
   }
   
