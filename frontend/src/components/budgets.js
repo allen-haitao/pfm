@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api'; // Import the api module
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus, faEdit, faTrash, faCamera, faImage, faCancel, faSave } from '@fortawesome/free-solid-svg-icons';
 import './Budgets.css';
 
 const Budgets = () => {
@@ -25,7 +27,7 @@ const Budgets = () => {
                 ...budget,
                 category_id: budget.category.id,
                 limits: parseFloat(budget.limits),
-                spend: parseFloat(budget.spend),
+                spend: parseFloat(budget.spent),
             }));
 
             setBudgets(processedBudgets);
@@ -103,7 +105,7 @@ const Budgets = () => {
                     value={newBudget.limits}
                     onChange={(e) => setNewBudget({ ...newBudget, limits: e.target.value })}
                 />
-                <button onClick={handleAddBudget}>Add Budget</button>
+                <button onClick={handleAddBudget}><FontAwesomeIcon icon={faPlus} size='2x' /></button>
             </div>
 
             {editingBudget && (
@@ -146,8 +148,8 @@ const Budgets = () => {
                             <td>${budget.limits.toFixed(2)}</td>
                             <td>${budget.spend.toFixed(2)}</td>
                             <td>
-                                <button onClick={() => setEditingBudget(budget)}>Edit</button>
-                                <button onClick={() => handleDeleteBudget(budget.id)}>Delete</button>
+                                <button onClick={() => setEditingBudget(budget)}><FontAwesomeIcon icon={faEdit} /></button>
+                                <button onClick={() => handleDeleteBudget(budget.id)}><FontAwesomeIcon icon={faTrash} /></button>
                             </td>
                         </tr>
                     ))}

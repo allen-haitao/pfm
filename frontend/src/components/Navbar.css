@@ -1,5 +1,5 @@
 .navbar {
-    background-color: #333;
+    background-color: #161a8f;
     color: white;
     padding: 10px 20px;
     display: flex;
@@ -13,11 +13,16 @@
     align-items: center;
     width: 100%;
   }
-  
   .navbar-logo {
-    color: white;
-    text-decoration: none;
-    font-size: 24px;
+    height: 100px; /* Adjust as needed */
+    margin-right: 15px;
+  }
+
+.slogan {
+    font-family: 'Raleway', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: #f0eff3;
   }
   
   .navbar-menu {

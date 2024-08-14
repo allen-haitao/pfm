@@ -19,6 +19,7 @@ const Dashboard = () => {
                     total_expenses: parseFloat(response.data.total_expenses),
                     recent_transactions: response.data.recent_transactions.map(transaction => ({
                         ...transaction,
+                        type: transaction.types,
                         amount: parseFloat(transaction.amount),
                     })),
                 };

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api'; // Import the api module
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus, faEdit, faTrash, faCamera, faImage, faCancel, faSave } from '@fortawesome/free-solid-svg-icons';
 import './Transactions.css';
 
 const Transactions = () => {
@@ -9,11 +11,12 @@ const Transactions = () => {
     const [error, setError] = useState('');
     const [newTransaction, setNewTransaction] = useState({ category_id: '', types: 'expense', amount: '', notes: '', occu_date: '' });
     const [editingTransaction, setEditingTransaction] = useState(null);
+    const [showAddForm, setShowAddForm] = useState(false);  // State to manage form visibility
 
     useEffect(() => {
         fetchTransactionsAndCategories();
     }, []);
-
+    //get transactions and categories
     const fetchTransactionsAndCategories = async () => {
         try {
             const [transactionsResponse, categoriesResponse] = await Promise.all([
@@ -23,6 +26,7 @@ const Transactions = () => {
 
             const processedTransactions = transactionsResponse.data.map(transaction => ({
                 ...transaction,
+                category_id: transaction.category.id,
                 amount: parseFloat(transaction.amount),
             }));
 
@@ -42,6 +46,35 @@ const Transactions = () => {
                 amount: parseFloat(newTransaction.amount),
             });
             setNewTransaction({ category_id: '', types: '', amount: '', notes: '', occu_date: '' });
+            setShowAddForm(false); // Show the form after adding a transaction
+            fetchTransactionsAndCategories(); // Refresh the list after adding a transaction
+        } catch (err) {
+            setError('Failed to add transaction');
+        }
+    };
+
+    const handleAddTransactionbycamera = async () => {
+        try {
+            await api.post('/transactions/', {
+                ...newTransaction,
+                amount: parseFloat(newTransaction.amount),
+            });
+            setNewTransaction({ category_id: '', types: '', amount: '', notes: '', occu_date: '' });
+            setShowAddForm(true); // Show the form after adding a transaction
+            fetchTransactionsAndCategories(); // Refresh the list after adding a transaction
+        } catch (err) {
+            setError('Failed to add transaction');
+        }
+    };
+
+    const handleAddTransactionbyImgfile = async () => {
+        try {
+            await api.post('/transactions/', {
+                ...newTransaction,
+                amount: parseFloat(newTransaction.amount),
+            });
+            setNewTransaction({ category_id: '', types: '', amount: '', notes: '', occu_date: '' });
+            setShowAddForm(true); // Show the form after adding a transaction
             fetchTransactionsAndCategories(); // Refresh the list after adding a transaction
         } catch (err) {
             setError('Failed to add transaction');
@@ -82,53 +115,15 @@ const Transactions = () => {
         <div className="transactions-container">
             <h1>Transactions</h1>
 
-            <div className="add-transaction-form">
-                <h2>Add New Transaction</h2>
-                <select
-                    value={newTransaction.category_id}
-                    onChange={(e) => setNewTransaction({ ...newTransaction, category_id: e.target.value })}
-                >
-                    <option value="">Select Category</option>
-                    {categories.map((category) => (
-                        <option key={category.id} value={category.id}>
-                            {category.name}
-                        </option>
-                    ))}
-                </select>
-                <select
-                    value={newTransaction.type}
-                    onChange={(e) => setNewTransaction({ ...newTransaction, types: e.target.value })}
-                >
-                    <option value="expense">Expense</option>
-                    <option value="income">Income</option>
-                </select>
-                <input
-                    type="date"
-                    placeholder="Date"
-                    value={newTransaction.occu_date}
-                    onChange={(e) => setNewTransaction({ ...newTransaction, occu_date: e.target.value })}
-                />
-                <input
-                    type="number"
-                    placeholder="Amount"
-                    value={newTransaction.amount}
-                    onChange={(e) => setNewTransaction({ ...newTransaction, amount: e.target.value })}
-                />
-                <input
-                    type="text"
-                    placeholder="Notes"
-                    value={newTransaction.notes}
-                    onChange={(e) => setNewTransaction({ ...newTransaction, notes: e.target.value })}
-                />
-                <button onClick={handleAddTransaction}>Add Transaction</button>
-            </div>
+            <button onClick={() => setShowAddForm(true)} title="Add transaction"><FontAwesomeIcon icon={faPlus} size='2x' /> </button>
+            <button onClick={() => setShowAddForm(!showAddForm)} title="Add transaction by scan receipt"><FontAwesomeIcon icon={faCamera} size='2x' /></button>
 
-            {editingTransaction && (
-                <div className="edit-transaction-form">
-                    <h2>Edit Transaction</h2>
+            {showAddForm && (
+                <div className="add-transaction-form">
+                    <h2>Add New Transaction <FontAwesomeIcon icon={faPlus} /></h2>
                     <select
-                        value={editingTransaction.category_id}
-                        onChange={(e) => setEditingTransaction({ ...editingTransaction, category_id: e.target.value })}
+                        value={newTransaction.category_id}
+                        onChange={(e) => setNewTransaction({ ...newTransaction, category_id: e.target.value })}
                     >
                         <option value="">Select Category</option>
                         {categories.map((category) => (
@@ -138,31 +133,78 @@ const Transactions = () => {
                         ))}
                     </select>
                     <select
-                        value={editingTransaction.type}
-                        onChange={(e) => setEditingTransaction({ ...editingTransaction, type: e.target.value })}
+                        value={newTransaction.types}
+                        onChange={(e) => setNewTransaction({ ...newTransaction, types: e.target.value })}
                     >
                         <option value="expense">Expense</option>
                         <option value="income">Income</option>
                     </select>
                     <input
                         type="date"
-                        value={editingTransaction.occu_date}
-                        onChange={(e) => setEditingTransaction({ ...editingTransaction, occu_date: e.target.value })}
+                        placeholder="Date"
+                        value={newTransaction.occu_date}
+                        onChange={(e) => setNewTransaction({ ...newTransaction, occu_date: e.target.value })}
                     />
                     <input
                         type="number"
-                        value={editingTransaction.amount}
-                        onChange={(e) => setEditingTransaction({ ...editingTransaction, amount: e.target.value })}
+                        placeholder="Amount"
+                        value={newTransaction.amount}
+                        onChange={(e) => setNewTransaction({ ...newTransaction, amount: e.target.value })}
                     />
                     <input
                         type="text"
-                        value={editingTransaction.notes}
-                        onChange={(e) => setEditingTransaction({ ...editingTransaction, notes: e.target.value })}
+                        placeholder="Notes"
+                        value={newTransaction.notes}
+                        onChange={(e) => setNewTransaction({ ...newTransaction, notes: e.target.value })}
                     />
-                    <button onClick={handleEditTransaction}>Save Changes</button>
-                    <button onClick={() => setEditingTransaction(null)}>Cancel</button>
+                    <button onClick={handleAddTransaction}><FontAwesomeIcon icon={faSave} /></button>
+                    <button onClick={() => setNewTransaction({ category_id: '', types: '', amount: '', notes: '', occu_date: '' })}><FontAwesomeIcon icon={faCancel} /></button>
                 </div>
-            )}
+            )
+            }
+
+            {
+                editingTransaction && (
+                    <div className="edit-transaction-form">
+                        <h2>Edit Transaction <FontAwesomeIcon icon={faEdit} /></h2>
+                        <select
+                            value={editingTransaction.category_id}
+                            onChange={(e) => setEditingTransaction({ ...editingTransaction, category_id: e.target.value })}
+                        >
+                            <option value="">Select Category</option>
+                            {categories.map((category) => (
+                                <option key={category.id} value={category.id}>
+                                    {category.name}
+                                </option>
+                            ))}
+                        </select>
+                        <select
+                            value={editingTransaction.type}
+                            onChange={(e) => setEditingTransaction({ ...editingTransaction, type: e.target.value })}
+                        >
+                            <option value="expense">Expense</option>
+                            <option value="income">Income</option>
+                        </select>
+                        <input
+                            type="date"
+                            value={editingTransaction.occu_date}
+                            onChange={(e) => setEditingTransaction({ ...editingTransaction, occu_date: e.target.value })}
+                        />
+                        <input
+                            type="number"
+                            value={editingTransaction.amount}
+                            onChange={(e) => setEditingTransaction({ ...editingTransaction, amount: e.target.value })}
+                        />
+                        <input
+                            type="text"
+                            value={editingTransaction.notes}
+                            onChange={(e) => setEditingTransaction({ ...editingTransaction, notes: e.target.value })}
+                        />
+                        <button onClick={handleEditTransaction}>Save Changes <FontAwesomeIcon icon={faEdit} /></button>
+                        <button onClick={() => setShowAddForm(false)}>Cancel</button>
+                    </div>
+                )
+            }
 
             <table className="transactions-table">
                 <thead>
@@ -180,18 +222,18 @@ const Transactions = () => {
                         <tr key={transaction.id}>
                             <td>{new Date(transaction.occu_date).toLocaleDateString()}</td>
                             <td>{categories.find(cat => cat.id === transaction.category_id)?.name}</td>
-                            <td>{transaction.type}</td>
+                            <td>{transaction.types}</td>
                             <td>${transaction.amount.toFixed(2)}</td>
                             <td>{transaction.notes}</td>
                             <td>
-                                <button onClick={() => setEditingTransaction(transaction)}>Edit</button>
-                                <button onClick={() => handleDeleteTransaction(transaction.id)}>Delete</button>
+                                <button onClick={() => setEditingTransaction(transaction)}><FontAwesomeIcon icon={faEdit} /></button>
+                                <button onClick={() => handleDeleteTransaction(transaction.id)}><FontAwesomeIcon icon={faTrash} /></button>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
-        </div>
+        </div >
     );
 };
 

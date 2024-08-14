@@ -221,9 +221,18 @@ class TransactionViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         category = Categories.objects.get(id=request.data['category_id'])
-        serializer.save(user=request.user, category=category)
-        
+        transaction = serializer.save(user=request.user, category=category)
         headers = self.get_success_headers(serializer.data)
+
+        if transaction.types == 'expense':
+            try:
+                # Find the corresponding budget
+                budget = Budgets.objects.get(category=transaction.category, user=transaction.user)
+                # Update the spent value
+                budget.spent += transaction.amount
+                budget.save()
+            except Budgets.DoesNotExist:
+                print('no budget updated')
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         #return super().create(request, *args, **kwargs)
 
