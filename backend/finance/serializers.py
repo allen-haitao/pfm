@@ -33,14 +33,45 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
     
 class UserProfileSerializer(serializers.ModelSerializer):
+    old_password = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    new_password = serializers.CharField(write_only=True, required=False, allow_blank=True)
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
+        fields = ['username', 'email', 'first_name', 'last_name', 'new_password', 'old_password']
+        extra_kwargs = {'new_password': {'write_only': True, 'required': False}}
+
+    def validate(self, attrs):
+        user = self.instance
+        old_password = attrs.get('old_password')
+        new_password = attrs.get('new_password')
+
+        if new_password:
+            if not old_password:
+                raise serializers.ValidationError("Current password is required to set a new password.")
+            if not user.check_password(old_password):
+                raise serializers.ValidationError("Current password is incorrect.")
+
+        return attrs
+
+    def update(self, instance, validated_data):
+        validated_data.pop('old_password', None)
+        new_password = validated_data.pop('new_password', None)
+        
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        if new_password:
+            instance.set_password(new_password)
+
+        instance.save()
+        return instance
+
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Categories
-        fields = ['id', 'name','category_type']
+        fields = ['id', 'name','user_id','category_type']
         read_only_fields = ['id']
 
 class BudgetSerializer(serializers.ModelSerializer):
@@ -52,7 +83,7 @@ class BudgetSerializer(serializers.ModelSerializer):
     )
     class Meta:
         model = Budgets
-        fields = ['id', 'category_id', 'category','limits', 'spent', 'period_type','start_date','end_date']
+        fields = ['id', 'category', 'category_id','limits', 'spent', 'period_type', 'month', 'year']
         read_only_fields = ['id', 'category_id']
 
 class TransactionSerializer(serializers.ModelSerializer):

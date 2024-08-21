@@ -5,18 +5,22 @@ import {
     CategoryScale,
     LinearScale,
     BarElement,
+    LineElement,
+    PointElement,
     ArcElement,
     Title,
     Tooltip,
     Legend,
 } from 'chart.js';
-import { Bar, Pie } from 'react-chartjs-2';
+import { Bar, Line, Pie } from 'react-chartjs-2';
 import './Reports.css';
 
 ChartJS.register(
     CategoryScale,
     LinearScale,
     BarElement,
+    LineElement,
+    PointElement,
     ArcElement,
     Title,
     Tooltip,
@@ -35,6 +39,7 @@ const Reports = () => {
         const fetchReport = async () => {
             try {
                 const response = await api.get('/reports/'); // No parameters in API call
+                console.log("Fetched Report Data:", response.data);
                 setReport(response.data);
             } catch (err) {
                 setError('Failed to fetch report data');
@@ -58,96 +63,123 @@ const Reports = () => {
         return <p>No report data available.</p>;
     }
 
-    // Prepare data for bar chart
-    const months = Array.from({ length: 12 }, (_, i) => i + 1); // [1, 2, 3, ..., 12]
+    // Month names to be displayed on the x-axis
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-    const aggregateByMonth = (data) => {
-        const monthlyTotals = Array(12).fill(0);
-        data.forEach(item => {
-            const date = new Date(item.occu_date);
-            const monthIndex = date.getMonth(); // 0-11 for Jan-Dec
-            monthlyTotals[monthIndex] += item.total;
-        });
+    // Helper function to aggregate data by month
+    const aggregateByMonth = (data, year) => {
+        const monthlyTotals = Array(12).fill(0); // Initialize array for 12 months
+        if (data && Array.isArray(data)) {
+            data.forEach(item => {
+                if (Math.floor(item.year) === year) { // Check if the year matches
+                    const monthIndex = Math.floor(item.month) - 1; // Convert month to 0-11 index
+                    monthlyTotals[monthIndex] += parseFloat(item.total || 0);
+                }
+            });
+        }
+        return monthlyTotals;
+    };
+    const aggregateBudget = (data, year) => {
+        const monthlyTotals = Array(12).fill(0); // Initialize array for 12 months
+        if (data && Array.isArray(data)) {
+            data.forEach(item => {
+                if (Math.floor(item.year) === year) { // Check if the year matches
+                    const monthIndex = Math.floor(item.month) - 1; // Convert month to 0-11 index
+                    monthlyTotals[monthIndex] += parseFloat(item.budgeted_amount || 0);
+                }
+            });
+        }
         return monthlyTotals;
     };
 
-    const incomeData = aggregateByMonth(report.income_trends);
-    const expenseData = aggregateByMonth(report.expense_trends);
+    // Prepare data for the charts
+    const incomeData = aggregateByMonth(report.income_trends, year);
+    const expenseData = aggregateByMonth(report.expense_trends, year);
+    const cashFlowData = incomeData.map((income, index) => income - expenseData[index]);
+
+    // Budget vs. Actual comparison
+    const budgetedData = aggregateBudget(report.budget_vs_actual, year);
+    const actualData = expenseData;
 
     const barData = {
-        labels: months.map(m => `Month ${m}`),
+        labels: Array.from({ length: 12 }, (_, i) => monthNames[i]),
         datasets: [
             {
                 label: 'Income',
-                data: incomeData,
+                data: incomeData.length ? incomeData : Array(12).fill(0),
                 backgroundColor: '#4caf50',
             },
             {
                 label: 'Expenses',
-                data: expenseData,
+                data: expenseData.length ? expenseData : Array(12).fill(0),
+                backgroundColor: '#f44336',
+            },
+            {
+                label: 'Cash Flow',
+                data: cashFlowData.length ? cashFlowData : Array(12).fill(0),
+                backgroundColor: '#2196f3',
+            },
+        ],
+    };
+
+    const budgetVsActualData = {
+        labels: Array.from({ length: 12 }, (_, i) => monthNames[i]),
+        datasets: [
+            {
+                label: 'Budgeted',
+                data: budgetedData,
+                backgroundColor: '#ffeb3b',
+            },
+            {
+                label: 'Actual',
+                data: actualData,
                 backgroundColor: '#f44336',
             },
         ],
     };
 
-    // Prepare data for pie chart based on month or year
-    let filteredExpenses;
-    if (filterByYear) {
-        // Sum totals for the selected year across all months
-        filteredExpenses = report.expense_categories.filter(item => {
-            const date = new Date(item.occu_date);
-            return date.getFullYear() === year;
-        });
-    } else {
-        // Filter for the selected month and year
-        filteredExpenses = report.expense_categories.filter(item => {
-            const date = new Date(item.occu_date);
-            return date.getFullYear() === year && date.getMonth() + 1 === month;
-        });
-    }
-
-    // Aggregate by category for the pie chart
-    const categoryTotals = {};
-    report.expense_categories.forEach(item => {
-        const categoryName = item.category__name;
-        if (!categoryTotals[categoryName]) {
-            categoryTotals[categoryName] = 0;
-        }
-        categoryTotals[categoryName] += item.total;
-    });
-
-    const selectedMonthOrYearExpenses = Object.keys(categoryTotals).map(category => ({
-        category,
-        total: categoryTotals[category],
-    }));
-
-    const pieData = {
-        labels: selectedMonthOrYearExpenses.map(item => item.category),
-        datasets: [
-            {
-                data: selectedMonthOrYearExpenses.map(item => item.total || 0),
-                backgroundColor: ['#2196f3', '#ffeb3b', '#f44336', '#4caf50', '#9c27b0'],
-            },
-        ],
+    const spendingTrendsData = {
+        labels: Array.from({ length: 12 }, (_, i) => monthNames[i]),
+        datasets: []
     };
 
-    const options = {
-        scales: {
-            x: {
-                type: 'category',
-            },
-            y: {
-                beginAtZero: true,
-            },
-        },
+    const categoryMap = {};
+
+    report.expense_trends.forEach(expense => {
+        const monthIndex = expense.month - 1; // Convert month to 0-11 index
+
+        if (!categoryMap[expense.category_name]) {
+            categoryMap[expense.category_name] = Array(12).fill(0);
+        }
+
+        categoryMap[expense.category_name][monthIndex] = parseFloat(expense.total);
+    });
+
+    Object.keys(categoryMap).forEach(categoryName => {
+        spendingTrendsData.datasets.push({
+            label: categoryName,
+            data: categoryMap[categoryName],
+            fill: false,
+            borderColor: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
+            tension: 0.1,
+        });
+    });
+    const getRandomColor = () => {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
     };
 
     return (
         <div className="reports-container">
             <h1>Income and Expense Trend</h1>
             <div className="chart-container">
-                <Bar data={barData} options={options} />
+                <Bar data={barData} options={{ scales: { y: { beginAtZero: true } } }} />
             </div>
+
             <h1>Monthly/Yearly Report</h1>
             <div className="report-controls">
                 <label>
@@ -181,7 +213,61 @@ const Reports = () => {
                 </label>
             </div>
             <div className="chart-container">
-                <Pie data={pieData} options={options} />
+                <Pie data={{
+                    labels: report.expense_categories.map(cat => cat.category__name),
+                    datasets: [{
+                        data: report.expense_categories.map(cat => parseFloat(cat.total) || 0),
+                        backgroundColor: report.expense_categories.map(() => getRandomColor()),
+                        hoverOffset: 4,
+                        /*backgroundColor: ['#2196f3', '#ffeb3b', '#f44336', '#4caf50', '#9c27b0'],*/
+                    }]
+                }} />
+            </div>
+
+            {/* New Reports */}
+            <h1>Monthly Cash Flow Report</h1>
+            <div className="chart-container">
+                <Bar data={{
+                    labels: Array.from({ length: 12 }, (_, i) => monthNames[i]),
+                    datasets: [
+                        {
+                            label: 'Cash Flow',
+                            data: cashFlowData,
+                            backgroundColor: cashFlowData.map(value => value < 0 ? 'red' : '#2196f3'),
+                        },
+                    ],
+                }} options={{
+                    scales: {
+                        y:
+                            { beginAtZero: true }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }} />
+            </div>
+
+            <h1>Spending Trends Report</h1>
+            <div className="chart-container">
+                <Line data={spendingTrendsData} options={{ scales: { y: { beginAtZero: true } } }} />
+            </div>
+
+            <h1>Budget vs. Actual Report</h1>
+            <div className="chart-container">
+                <Bar data={budgetVsActualData} options={{ scales: { y: { beginAtZero: true } } }} />
+            </div>
+
+            <h1>Year-End Financial Summary</h1>
+            <div className="chart-container">
+                <Pie data={{
+                    labels: ['Income', 'Expenses'],
+                    datasets: [{
+                        data: [report.year_end_summary.total_income, report.year_end_summary.total_expenses],
+                        backgroundColor: ['#4caf50', '#f44336'],
+                    }]
+                }} />
             </div>
         </div>
     );

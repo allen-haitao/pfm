@@ -11,12 +11,16 @@ const Transactions = () => {
     const [error, setError] = useState('');
     const [newTransaction, setNewTransaction] = useState({ category_id: '', types: 'expense', amount: '', notes: '', occu_date: '' });
     const [editingTransaction, setEditingTransaction] = useState(null);
-    const [showAddForm, setShowAddForm] = useState(false);  // State to manage form visibility
+    const [showAddForm, setShowAddForm] = useState(false); // State to manage form visibility
+    const [showUploadForm, setShowUploadForm] = useState(false); // State to manage receipt upload form visibility
+    const [image, setImage] = useState(null); // State to store the uploaded image
+    const [extractedData, setExtractedData] = useState(null); // State to store extracted data from the receipt
 
     useEffect(() => {
         fetchTransactionsAndCategories();
     }, []);
-    //get transactions and categories
+
+    // Get transactions and categories
     const fetchTransactionsAndCategories = async () => {
         try {
             const [transactionsResponse, categoriesResponse] = await Promise.all([
@@ -39,6 +43,45 @@ const Transactions = () => {
         }
     };
 
+    const handleImageUpload = (e) => {
+        setImage(e.target.files[0]);
+    };
+
+    const handleImageSubmit = async () => {
+        if (!image) {
+            setError('Please upload a receipt or invoice image.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('image', image);
+
+        try {
+            setLoading(true);
+            const response = await api.post('/transactions/process_receipt/', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            setExtractedData(response.data);
+            setLoading(false);
+        } catch (err) {
+            setError('Failed to process the image.');
+            setLoading(false);
+        }
+    };
+
+    const handleConfirmTransaction = async () => {
+        try {
+            await api.post('/confirm-transaction/', extractedData);
+            alert('Transaction successfully saved!');
+            fetchTransactionsAndCategories(); // Refresh the transaction list
+            setShowUploadForm(false); // Hide the upload form after confirmation
+        } catch (err) {
+            setError('Failed to save the transaction.');
+        }
+    };
+
     const handleAddTransaction = async () => {
         try {
             await api.post('/transactions/', {
@@ -46,51 +89,10 @@ const Transactions = () => {
                 amount: parseFloat(newTransaction.amount),
             });
             setNewTransaction({ category_id: '', types: '', amount: '', notes: '', occu_date: '' });
-            setShowAddForm(false); // Show the form after adding a transaction
+            setShowAddForm(false); // Hide the form after adding a transaction
             fetchTransactionsAndCategories(); // Refresh the list after adding a transaction
         } catch (err) {
             setError('Failed to add transaction');
-        }
-    };
-
-    const handleAddTransactionbycamera = async () => {
-        try {
-            await api.post('/transactions/', {
-                ...newTransaction,
-                amount: parseFloat(newTransaction.amount),
-            });
-            setNewTransaction({ category_id: '', types: '', amount: '', notes: '', occu_date: '' });
-            setShowAddForm(true); // Show the form after adding a transaction
-            fetchTransactionsAndCategories(); // Refresh the list after adding a transaction
-        } catch (err) {
-            setError('Failed to add transaction');
-        }
-    };
-
-    const handleAddTransactionbyImgfile = async () => {
-        try {
-            await api.post('/transactions/', {
-                ...newTransaction,
-                amount: parseFloat(newTransaction.amount),
-            });
-            setNewTransaction({ category_id: '', types: '', amount: '', notes: '', occu_date: '' });
-            setShowAddForm(true); // Show the form after adding a transaction
-            fetchTransactionsAndCategories(); // Refresh the list after adding a transaction
-        } catch (err) {
-            setError('Failed to add transaction');
-        }
-    };
-
-    const handleEditTransaction = async () => {
-        try {
-            await api.put(`/transactions/${editingTransaction.id}/`, {
-                ...editingTransaction,
-                amount: parseFloat(editingTransaction.amount),
-            });
-            setEditingTransaction(null);
-            fetchTransactionsAndCategories(); // Refresh the list after editing a transaction
-        } catch (err) {
-            setError('Failed to edit transaction');
         }
     };
 
@@ -115,8 +117,8 @@ const Transactions = () => {
         <div className="transactions-container">
             <h1>Transactions</h1>
 
-            <button onClick={() => setShowAddForm(true)} title="Add transaction"><FontAwesomeIcon icon={faPlus} size='2x' /> </button>
-            <button onClick={() => setShowAddForm(!showAddForm)} title="Add transaction by scan receipt"><FontAwesomeIcon icon={faCamera} size='2x' /></button>
+            <button onClick={() => setShowAddForm(true)} title="Add transaction"><FontAwesomeIcon icon={faPlus} size='2x' /></button>
+            <button onClick={() => setShowUploadForm(!showUploadForm)} title="Add transaction by scan receipt"><FontAwesomeIcon icon={faCamera} size='2x' /></button>
 
             {showAddForm && (
                 <div className="add-transaction-form">
@@ -158,53 +160,25 @@ const Transactions = () => {
                         onChange={(e) => setNewTransaction({ ...newTransaction, notes: e.target.value })}
                     />
                     <button onClick={handleAddTransaction}><FontAwesomeIcon icon={faSave} /></button>
-                    <button onClick={() => setNewTransaction({ category_id: '', types: '', amount: '', notes: '', occu_date: '' })}><FontAwesomeIcon icon={faCancel} /></button>
+                    <button onClick={() => setShowAddForm(false)}><FontAwesomeIcon icon={faCancel} /></button>
                 </div>
-            )
-            }
+            )}
 
-            {
-                editingTransaction && (
-                    <div className="edit-transaction-form">
-                        <h2>Edit Transaction <FontAwesomeIcon icon={faEdit} /></h2>
-                        <select
-                            value={editingTransaction.category_id}
-                            onChange={(e) => setEditingTransaction({ ...editingTransaction, category_id: e.target.value })}
-                        >
-                            <option value="">Select Category</option>
-                            {categories.map((category) => (
-                                <option key={category.id} value={category.id}>
-                                    {category.name}
-                                </option>
-                            ))}
-                        </select>
-                        <select
-                            value={editingTransaction.type}
-                            onChange={(e) => setEditingTransaction({ ...editingTransaction, type: e.target.value })}
-                        >
-                            <option value="expense">Expense</option>
-                            <option value="income">Income</option>
-                        </select>
-                        <input
-                            type="date"
-                            value={editingTransaction.occu_date}
-                            onChange={(e) => setEditingTransaction({ ...editingTransaction, occu_date: e.target.value })}
-                        />
-                        <input
-                            type="number"
-                            value={editingTransaction.amount}
-                            onChange={(e) => setEditingTransaction({ ...editingTransaction, amount: e.target.value })}
-                        />
-                        <input
-                            type="text"
-                            value={editingTransaction.notes}
-                            onChange={(e) => setEditingTransaction({ ...editingTransaction, notes: e.target.value })}
-                        />
-                        <button onClick={handleEditTransaction}>Save Changes <FontAwesomeIcon icon={faEdit} /></button>
-                        <button onClick={() => setShowAddForm(false)}>Cancel</button>
-                    </div>
-                )
-            }
+            {showUploadForm && (
+                <div className="upload-receipt-form">
+                    <h2>Upload Receipt <FontAwesomeIcon icon={faCamera} /></h2>
+                    <input type="file" accept="image/*" onChange={handleImageUpload} />
+                    <button onClick={handleImageSubmit}><FontAwesomeIcon icon={faSave} /> Process Image</button>
+
+                    {extractedData && (
+                        <div className="extracted-data">
+                            <h3>Extracted Transaction Data</h3>
+                            {/* Display extracted items, categories, and amounts here */}
+                            <button onClick={handleConfirmTransaction}><FontAwesomeIcon icon={faSave} /> Confirm Transaction</button>
+                        </div>
+                    )}
+                </div>
+            )}
 
             <table className="transactions-table">
                 <thead>
@@ -233,7 +207,7 @@ const Transactions = () => {
                     ))}
                 </tbody>
             </table>
-        </div >
+        </div>
     );
 };
 

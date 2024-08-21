@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from .serializers import RegisterSerializer, UserSerializer, TransactionSerializer, BudgetSerializer, CategorySerializer, UserProfileSerializer
+from .serializers import RegisterSerializer, UserSerializer, TransactionSerializer, BudgetSerializer, CategorySerializer
 from .models import Transactions, Budgets, Categories
 from decimal import Decimal
 from django.utils import timezone
@@ -18,10 +18,7 @@ import os
 from PIL import Image
 from io import BytesIO
 import logging
-from django.db.models import Sum, F, Func, Value
-from .receipt import process_img
-import base64
-
+import pytesseract
 logger = logging.getLogger(__name__)
 
 User = get_user_model()
@@ -121,11 +118,7 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         - username: str
         - email: str
         """
-        user = request.user
-        serializer = UserProfileSerializer(user)
-        return Response(serializer.data)
-
-        #return super().retrieve(request, *args, **kwargs)
+        return super().retrieve(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_description="Update user profile",
@@ -147,13 +140,7 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         - username: str
         - email: str
         """
-        user = request.user
-        serializer = UserProfileSerializer(user, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=400)
-        #return super().update(request, *args, **kwargs)
+        return super().update(request, *args, **kwargs)
 
 class DashboardView(APIView):
     """
@@ -196,7 +183,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
     """
     serializer_class = TransactionSerializer
     permission_classes = [IsAuthenticated]
-    
+    parser_classes = [MultiPartParser]
 
     def get_queryset(self):
         return Transactions.objects.filter(user_id=self.request.user.id)
@@ -242,7 +229,6 @@ class TransactionViewSet(viewsets.ModelViewSet):
         - date: str
         - notes: str
         """
-        print("process add transaction")
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         category = Categories.objects.get(id=request.data['category_id'])
@@ -312,24 +298,30 @@ class TransactionViewSet(viewsets.ModelViewSet):
         - 400: Bad Request if no image is uploaded
         - 500: Internal Server Error if something goes wrong
         """
-        print("Process Receipt endpoint hit")
-        parser_classes = [MultiPartParser]
+        logger.info("Process Receipt endpoint hit")
         try:
             image = request.FILES.get('image')
             if not image:
                 return Response({"error": "No image uploaded."}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Convert the uploaded image to binary data
+            # Open the image and use pytesseract to extract text
             image_data = Image.open(image)
-            buffered = BytesIO()
-            image_data.save(buffered, format="JPEG")
-            image_binary = buffered.getvalue()
-            image_base64 = base64.b64encode(image_binary).decode('utf-8')
+            extracted_text = pytesseract.image_to_string(image_data)
+            print(extracted_text)
 
-            # Call the OpenAI API with the image data
-            extracted_data = process_img(image_base64)
+            # Now send this extracted text to OpenAI for processing
+            openai.api_key = os.getenv('OPENAI_API_KEY')
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "You are a receipt processing assistant."},
+                    {"role": "user", "content": f"Extract and categorize the items and their prices from the following receipt text:\n\n{extracted_text}"}
+                ]
+            )
 
-            return Response({"data": extracted_data}, status=status.HTTP_200_OK)
+            result = response['choices'][0]['message']['content']
+
+            return Response({"data": result}, status=status.HTTP_200_OK)
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -520,7 +512,6 @@ class BudgetViewSet(viewsets.ModelViewSet):
         - limit: float
         - spent: float
         """
-        
         return super().update(request, *args, **kwargs)
 
     @swagger_auto_schema(
@@ -691,16 +682,9 @@ class CategoryViewSet(viewsets.ModelViewSet):
         """
         return super().destroy(request, *args, **kwargs)
     
-class Year(Func):
-    function = 'EXTRACT'
-    template = "%(function)s(YEAR FROM %(expressions)s)"
-
-class Month(Func):
-    function = 'EXTRACT'
-    template = "%(function)s(MONTH FROM %(expressions)s)"    
 class ReportView(APIView):
     """
-    Endpoint for generating reports on income and expense trends, expense categories, and additional reports.
+    Endpoint for generating reports on income and expense trends, and expense categories.
     """
     permission_classes = [IsAuthenticated]
 
@@ -717,8 +701,8 @@ class ReportView(APIView):
                             items=openapi.Schema(
                                 type=openapi.TYPE_OBJECT,
                                 properties={
-                                    'year': openapi.Schema(type=openapi.TYPE_INTEGER),
-                                    'month': openapi.Schema(type=openapi.TYPE_INTEGER),
+                                    'date__year': openapi.Schema(type=openapi.TYPE_INTEGER),
+                                    'date__month': openapi.Schema(type=openapi.TYPE_INTEGER),
                                     'total': openapi.Schema(type=openapi.TYPE_STRING, format='decimal')
                                 }
                             )
@@ -728,9 +712,8 @@ class ReportView(APIView):
                             items=openapi.Schema(
                                 type=openapi.TYPE_OBJECT,
                                 properties={
-                                    'year': openapi.Schema(type=openapi.TYPE_INTEGER),
-                                    'month': openapi.Schema(type=openapi.TYPE_INTEGER),
-                                    'category__name': openapi.Schema(type=openapi.TYPE_STRING),
+                                    'date__year': openapi.Schema(type=openapi.TYPE_INTEGER),
+                                    'date__month': openapi.Schema(type=openapi.TYPE_INTEGER),
                                     'total': openapi.Schema(type=openapi.TYPE_STRING, format='decimal')
                                 }
                             )
@@ -744,41 +727,7 @@ class ReportView(APIView):
                                     'total': openapi.Schema(type=openapi.TYPE_STRING, format='decimal')
                                 }
                             )
-                        ),
-                        'cash_flow': openapi.Schema(
-                            type=openapi.TYPE_ARRAY,
-                            items=openapi.Schema(
-                                type=openapi.TYPE_OBJECT,
-                                properties={
-                                    'year': openapi.Schema(type=openapi.TYPE_INTEGER),
-                                    'month': openapi.Schema(type=openapi.TYPE_INTEGER),
-                                    'income_total': openapi.Schema(type=openapi.TYPE_STRING, format='decimal'),
-                                    'expense_total': openapi.Schema(type=openapi.TYPE_STRING, format='decimal'),
-                                    'cash_flow': openapi.Schema(type=openapi.TYPE_STRING, format='decimal')
-                                }
-                            )
-                        ),
-                        'budget_vs_actual': openapi.Schema(
-                            type=openapi.TYPE_ARRAY,
-                            items=openapi.Schema(
-                                type=openapi.TYPE_OBJECT,
-                                properties={
-                                    'year': openapi.Schema(type=openapi.TYPE_INTEGER),
-                                    'month': openapi.Schema(type=openapi.TYPE_INTEGER),
-                                    'category__name': openapi.Schema(type=openapi.TYPE_STRING),
-                                    'budgeted_amount': openapi.Schema(type=openapi.TYPE_STRING, format='decimal'),
-                                    'actual_amount': openapi.Schema(type=openapi.TYPE_STRING, format='decimal')
-                                }
-                            )
-                        ),
-                        'year_end_summary': openapi.Schema(
-                            type=openapi.TYPE_OBJECT,
-                            properties={
-                                'total_income': openapi.Schema(type=openapi.TYPE_STRING, format='decimal'),
-                                'total_expenses': openapi.Schema(type=openapi.TYPE_STRING, format='decimal'),
-                                'net_savings': openapi.Schema(type=openapi.TYPE_STRING, format='decimal')
-                            }
-                        ),
+                        )
                     }
                 )
             )
@@ -786,90 +735,27 @@ class ReportView(APIView):
     )
     def get(self, request):
         """
-        Get monthly income and expense trends, a pie chart report of the expense categories, and additional reports.
+        Get monthly income and expense trends and a pie chart report of the expense categories.
 
         Request:
         - Authorization: Bearer <token>
 
         Response:
         - income_trends: list of monthly income data
-        - expense_trends: list of monthly expense data with category breakdown
+        - expense_trends: list of monthly expense data
         - expense_categories: list of expense categories data for pie chart
-        - cash_flow: list of monthly cash flow data (income - expenses)
-        - budget_vs_actual: comparison of budgeted vs. actual spending by category
-        - year_end_summary: summary of total income, total expenses, and net savings for the year
         """
         user = request.user
 
-        # Use the current year as the default
-        year = request.query_params.get('year', timezone.now().year)
-        month = request.query_params.get('month', None)
-
         # Calculate income and expense trends
-        income_trends = Transactions.objects.filter(user=user, types='income') \
-            .annotate(year=Year('occu_date'), month=Month('occu_date')) \
-            .values('year', 'month') \
-            .annotate(total=Sum('amount')) \
-            .order_by('year', 'month')
-
-        expense_trends = Transactions.objects.filter(user=user, types='expense') \
-            .annotate(year=Year('occu_date'), month=Month('occu_date'), category_name=F('category__name')) \
-            .values('year', 'month', 'category_name') \
-            .annotate(total=Sum('amount')) \
-            .order_by('year', 'month', 'category_name')
+        income_trends = Transactions.objects.filter(user=user, types='income').values('occu_date').annotate(total=Sum('amount')).order_by('occu_date')
+        expense_trends = Transactions.objects.filter(user=user, types='expense').values('occu_date').annotate(total=Sum('amount')).order_by('occu_date')
 
         # Calculate expense categories for pie chart
-        expense_categories = Transactions.objects.filter(user=user, types='expense') \
-            .values('category__name') \
-            .annotate(total=Sum('amount')) \
-            .order_by('category__name')
-
-        # Calculate cash flow (income - expenses)
-        cash_flow = []
-        for income in income_trends:
-            expense = next((exp for exp in expense_trends if exp['year'] == income['year'] and exp['month'] == income['month']), {'total': 0})
-            cash_flow.append({
-                'year': income['year'],
-                'month': income['month'],
-                'income_total': income['total'],
-                'expense_total': expense['total'],
-                'cash_flow': float(income['total']) - float(expense['total'])
-            })
-
-        # Budget vs. Actual (assuming Budget model exists and related to user and categories)
-        budget_vs_actual = []
-        budgets = Budgets.objects.filter(user=user)
-        for budget in budgets:
-            actual_spent = Transactions.objects.filter(
-                user=user, 
-                category=budget.category, 
-                occu_date__year=budget.year, 
-                occu_date__month=budget.month
-            ).aggregate(total=Sum('amount'))['total'] or 0
-            budget_vs_actual.append({
-                'year': budget.year,
-                'month': budget.month,
-                'category__name': budget.category.name,
-                'budgeted_amount': budget.limits,
-                'actual_amount': actual_spent
-            })
-
-        # Year-End Financial Summary
-        total_income = Transactions.objects.filter(user=user, types='income', occu_date__year=year).aggregate(total=Sum('amount'))['total'] or 0
-        total_expenses = Transactions.objects.filter(user=user, types='expense', occu_date__year=year).aggregate(total=Sum('amount'))['total'] or 0
-        net_savings = float(total_income) - float(total_expenses)
-
-        year_end_summary = {
-            'total_income': total_income,
-            'total_expenses': total_expenses,
-            'net_savings': net_savings
-        }
+        expense_categories = Transactions.objects.filter(user=user, types='expense').values('category__name').annotate(total=Sum('amount')).order_by('category__name')
 
         return Response({
             "income_trends": list(income_trends),
             "expense_trends": list(expense_trends),
-            "expense_categories": list(expense_categories),
-            "cash_flow": cash_flow,
-            "budget_vs_actual": budget_vs_actual,
-            "year_end_summary": year_end_summary
+            "expense_categories": list(expense_categories)
         })

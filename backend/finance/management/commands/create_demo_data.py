@@ -26,23 +26,34 @@ class Command(BaseCommand):
 
         # Create categories if they don't exist
         categories = [
-            # Expenses
-            {'name': 'Dining', 'category_type': 'expense'},
+           # Expenses
+            {'name': 'Rent/Mortgage', 'category_type': 'expense'},
+            {'name': 'Utilities (electricity, water, gas)', 'category_type': 'expense'},
+            {'name': 'House Maintenance', 'category_type': 'expense'},
+            {'name': 'Fuel', 'category_type': 'expense'},
+            {'name': 'Vehicle Maintenance', 'category_type': 'expense'},
+            {'name': 'Public Transportation', 'category_type': 'expense'},
+            {'name': 'Transportation Insurance', 'category_type': 'expense'},
+            {'name': 'Food', 'category_type': 'expense'},
+            {'name': 'Dining Out', 'category_type': 'expense'},
+            {'name': 'Healthcare', 'category_type': 'expense'},
+            {'name': 'Entertainment', 'category_type': 'expense'},
             {'name': 'Clothing', 'category_type': 'expense'},
-            {'name': 'Beauty', 'category_type': 'expense'},
-            {'name': 'Pets', 'category_type': 'expense'},
-            {'name': 'Shopping', 'category_type': 'expense'},
-            {'name': 'Travel', 'category_type': 'expense'},
-            {'name': 'Recreation', 'category_type': 'expense'},
-            {'name': 'Education', 'category_type': 'expense'},
-            {'name': 'Utilities', 'category_type': 'expense'},
-            {'name': 'Medical', 'category_type': 'expense'},
-            {'name': 'Rent and Mortgate', 'category_type': 'expense'},
+            {'name': 'Haircuts', 'category_type': 'expense'},
+            {'name': 'Beauty Products', 'category_type': 'expense'},
             {'name': 'Insurance', 'category_type': 'expense'},
+            {'name': 'Education', 'category_type': 'expense'},
+            {'name': 'Gifts', 'category_type': 'expense'},
+            {'name': 'Donations', 'category_type': 'expense'},
+            {'name': 'Miscellaneous', 'category_type': 'expense'},
+            {'name': 'Investment', 'category_type': 'expense'},
 
             # Income
             {'name': 'Salary', 'category_type': 'income'},
             {'name': 'Investment Income', 'category_type': 'income'},
+            {'name': 'Rental Income', 'category_type': 'income'},
+            {'name': 'IBusiness Income', 'category_type': 'income'},
+            {'name': 'Miscellaneous Income', 'category_type': 'income'},
         ]
 
         for category_data in categories:

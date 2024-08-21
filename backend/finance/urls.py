@@ -23,6 +23,7 @@ schema_view = get_schema_view(
     authentication_classes=(JWTAuthentication,),
 )
 
+
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
@@ -33,4 +34,4 @@ urlpatterns = [
     path('reports/', ReportView.as_view(), name='reports'), 
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('', include(router.urls)),
-]
+]   
