@@ -250,14 +250,16 @@ class TransactionViewSet(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
 
         if transaction.types == 'expense':
-            now = timezone.now().date()
+            transaction_date = transaction.occu_date  
+            transaction_month = transaction_date.month
+            transaction_year = transaction_date.year
             try:
                 # Find the corresponding budget
                 budget = Budgets.objects.get(
                         category=transaction.category,
                         user=transaction.user,
-                        start_date__lte=now,
-                        end_date__gte=now
+                        month=transaction_month,
+                        year=transaction_year
                     )
                 # Update the spent value
                 budget.spent += transaction.amount

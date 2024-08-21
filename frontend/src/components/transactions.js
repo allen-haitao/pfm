@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import api from '../services/api'; // Import the api module
+import api from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faEdit, faTrash, faCamera, faImage, faCancel, faSave } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEdit, faTrash, faCamera, faSave, faCancel } from '@fortawesome/free-solid-svg-icons';
 import './Transactions.css';
 
 const Transactions = () => {
@@ -11,16 +11,16 @@ const Transactions = () => {
     const [error, setError] = useState('');
     const [newTransaction, setNewTransaction] = useState({ category_id: '', types: 'expense', amount: '', notes: '', occu_date: '' });
     const [editingTransaction, setEditingTransaction] = useState(null);
-    const [showAddForm, setShowAddForm] = useState(false); // State to manage form visibility
-    const [showUploadForm, setShowUploadForm] = useState(false); // State to manage receipt upload form visibility
-    const [image, setImage] = useState(null); // State to store the uploaded image
-    const [extractedData, setExtractedData] = useState(null); // State to store extracted data from the receipt
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [showUploadForm, setShowUploadForm] = useState(false);
+    const [image, setImage] = useState(null);
+    const [extractedData, setExtractedData] = useState(null);
+    const [summaryData, setSummaryData] = useState([]);
 
     useEffect(() => {
         fetchTransactionsAndCategories();
     }, []);
 
-    // Get transactions and categories
     const fetchTransactionsAndCategories = async () => {
         try {
             const [transactionsResponse, categoriesResponse] = await Promise.all([
@@ -70,15 +70,93 @@ const Transactions = () => {
             setLoading(false);
         }
     };
+    const handlePriceChange = (index, newPrice) => {
+        const updatedData = { ...extractedData };
+        updatedData.data[2][1][index][3][1] = newPrice; // Update the price in extractedData
+
+        // Recalculate the category subtotals
+        recalculateCategorySubtotals(updatedData);
+        setExtractedData(updatedData);
+    };
+    const handleCategoryChange = (index, newCategory) => {
+        const updatedData = { ...extractedData };
+        updatedData.data[2][1][index][4][1] = newCategory; // Update the category in extractedData
+
+        // Recalculate the category subtotals
+        recalculateCategorySubtotals(updatedData);
+        setExtractedData(updatedData);
+    };
+
+    const recalculateCategorySubtotals = (data) => {
+        const newCategorySubtotals = data.data[2][1].reduce((acc, item) => {
+            const category = item[4][1];
+            const amount = item[3][1];
+            acc[category] = (acc[category] || 0) + amount;
+            return acc;
+        }, {});
+
+        data.data[3][1][5][1] = newCategorySubtotals;
+
+        // Update the total and final total as well
+        const total = Object.values(newCategorySubtotals).reduce((acc, subtotal) => acc + subtotal, 0);
+        data.data[3][1][0][1] = total;
+        data.data[3][1][4][1] = total + data.data[3][1][2][1]; // Assuming final total = total + tax
+    };
+    const handleSummaryChange = (index, field, value) => {
+        const updatedSummaryData = [...summaryData];
+        updatedSummaryData[index] = {
+            ...updatedSummaryData[index],
+            [field]: value,
+        };
+        setSummaryData(updatedSummaryData);
+    };
+    const autoAddTransaction = async ({ category_id, types, amount, notes, occu_date }) => {
+        try {
+            await api.post('/transactions/', {
+                category_id,
+                types,
+                amount,
+                notes,
+                occu_date,
+            });
+            setNewTransaction({ category_id: '', types: 'expense', amount: '', notes: '', occu_date: '' });
+            setShowAddForm(false);
+            fetchTransactionsAndCategories(); // Refresh the list after adding a transaction
+        } catch (err) {
+            setError('Failed to add transaction');
+        }
+    };
 
     const handleConfirmTransaction = async () => {
         try {
-            await api.post('/confirm-transaction/', extractedData);
-            alert('Transaction successfully saved!');
-            fetchTransactionsAndCategories(); // Refresh the transaction list
-            setShowUploadForm(false); // Hide the upload form after confirmation
+            const finalSummaryData = Object.entries(extractedData.data[3][1][5][1]).map(([category, amount], index) => {
+                const existingData = summaryData[index] || {};
+                return {
+                    category,
+                    amount,
+                    occu_date: existingData.occu_date || new Date().toISOString().split('T')[0],
+                    notes: existingData.notes || 'Add by receipt',
+                };
+            });
+
+            finalSummaryData.forEach(async (row, index) => {
+                const category = categories.find(cat => cat.name === row.category);
+                if (category) {
+                    await autoAddTransaction({
+                        category_id: category.id,
+                        types: 'expense', // Assuming all are expenses; adjust if needed
+                        amount: parseFloat(row.amount).toFixed(2),
+                        notes: row.notes,
+                        occu_date: row.occu_date,
+                    });
+                }
+            });
+
+            alert('Transactions successfully saved!');
+            fetchTransactionsAndCategories();
+            setShowUploadForm(false);
         } catch (err) {
-            setError('Failed to save the transaction.');
+            setError('Failed to save the transactions.');
         }
     };
 
@@ -89,8 +167,8 @@ const Transactions = () => {
                 amount: parseFloat(newTransaction.amount),
             });
             setNewTransaction({ category_id: '', types: '', amount: '', notes: '', occu_date: '' });
-            setShowAddForm(false); // Hide the form after adding a transaction
-            fetchTransactionsAndCategories(); // Refresh the list after adding a transaction
+            setShowAddForm(false);
+            fetchTransactionsAndCategories();
         } catch (err) {
             setError('Failed to add transaction');
         }
@@ -99,7 +177,7 @@ const Transactions = () => {
     const handleDeleteTransaction = async (id) => {
         try {
             await api.delete(`/transactions/${id}/`);
-            fetchTransactionsAndCategories(); // Refresh the list after deleting a transaction
+            fetchTransactionsAndCategories();
         } catch (err) {
             setError('Failed to delete transaction');
         }
@@ -117,8 +195,12 @@ const Transactions = () => {
         <div className="transactions-container">
             <h1>Transactions</h1>
 
-            <button onClick={() => setShowAddForm(true)} title="Add transaction"><FontAwesomeIcon icon={faPlus} size='2x' /></button>
-            <button onClick={() => setShowUploadForm(!showUploadForm)} title="Add transaction by scan receipt"><FontAwesomeIcon icon={faCamera} size='2x' /></button>
+            <button onClick={() => setShowAddForm(true)} title="Add transaction">
+                <FontAwesomeIcon icon={faPlus} size='2x' />
+            </button>
+            <button onClick={() => setShowUploadForm(!showUploadForm)} title="Add transaction by scan receipt">
+                <FontAwesomeIcon icon={faCamera} size='2x' />
+            </button>
 
             {showAddForm && (
                 <div className="add-transaction-form">
@@ -173,7 +255,78 @@ const Transactions = () => {
                     {extractedData && (
                         <div className="extracted-data">
                             <h3>Extracted Transaction Data</h3>
-                            {/* Display extracted items, categories, and amounts here */}
+
+                            <table className="extracted-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Description</th>
+                                        <th>Price</th>
+                                        <th>Category</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {extractedData.data[2][1].map((item, index) => {
+                                        const product = item.reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+                                        return (
+                                            <tr key={index}>
+                                                <td>{product.product_description}</td>
+                                                <td>
+                                                    <input
+                                                        type="number"
+                                                        value={product.product_total_price.toFixed(2)}
+                                                        onChange={(e) => handlePriceChange(index, parseFloat(e.target.value))}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <select
+                                                        value={product.category}
+                                                        onChange={(e) => handleCategoryChange(index, e.target.value)}
+                                                    >
+                                                        {categories.map((category) => (
+                                                            <option key={category.id} value={category.name}>
+                                                                {category.name}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+
+                            <div className="transaction-summary">
+                                <h3>Transaction Summary</h3>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Category</th>
+                                            <th>Amount</th>
+                                            <th>Date</th>
+                                            <th>Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {Object.entries(extractedData.data[3][1][5][1]).map(([category, amount], index) => (
+                                            <tr key={index}>
+                                                <td>{category}</td>
+                                                <td>${amount.toFixed(2)}</td>
+                                                <td> <input
+                                                    type="date"
+                                                    defaultValue={summaryData[index]?.occu_date || new Date().toISOString().split('T')[0]}
+                                                    onChange={(e) => handleSummaryChange(index, 'occu_date', e.target.value)}
+                                                /></td>
+                                                <td><input
+                                                    type="string"
+                                                    defaultValue={summaryData[index]?.notes || "Add by receipt"}
+                                                    onChange={(e) => handleSummaryChange(index, 'notes', e.target.value)}
+                                                /></td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
                             <button onClick={handleConfirmTransaction}><FontAwesomeIcon icon={faSave} /> Confirm Transaction</button>
                         </div>
                     )}
@@ -211,4 +364,4 @@ const Transactions = () => {
     );
 };
 
-export default Transactions;
+export default Transactions;               
