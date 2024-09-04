@@ -180,7 +180,7 @@ class DashboardView(APIView):
         total_expenses = Transactions.objects.filter(user_id=user.id, types='expense').aggregate(Sum('amount'))['amount__sum'] or Decimal('0.0')
         total_savings = total_income - total_expenses
 
-        recent_transactions = Transactions.objects.filter(user_id=user.id).order_by('occu_date')[:5]
+        recent_transactions = Transactions.objects.filter(user_id=user.id).order_by('-occu_date')[:5]
         recent_transactions_data = TransactionSerializer(recent_transactions, many=True).data
 
         return Response({
@@ -323,6 +323,8 @@ class TransactionViewSet(viewsets.ModelViewSet):
 
             # Convert the uploaded image to binary data
             image_data = Image.open(image)
+            #resize the image to reduce consumption of token
+            image_data.thumbnail((1024, 1024))
             buffered = BytesIO()
             image_data.save(buffered, format="JPEG")
             image_binary = buffered.getvalue()

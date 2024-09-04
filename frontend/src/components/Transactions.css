@@ -35,6 +35,13 @@
   padding: 5px 10px;
 }
 
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Full viewport height */
+}
+
 .error {
   color: red;
   margin-top: 10px;

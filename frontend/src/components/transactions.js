@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { RingLoader } from 'react-spinners';
 import { faPlus, faEdit, faTrash, faCamera, faSave, faCancel } from '@fortawesome/free-solid-svg-icons';
 import './Transactions.css';
 
@@ -184,7 +185,11 @@ const Transactions = () => {
     };
 
     if (loading) {
-        return <p>Loading...</p>;
+        return (
+            <div className="loading-container">
+                <RingLoader size={50} color={"#123abc"} loading={loading} />
+            </div>
+        );
     }
 
     if (error) {
