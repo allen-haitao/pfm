@@ -96,6 +96,7 @@ const Reports = () => {
     const incomeData = aggregateByMonth(report.income_trends, year);
     const expenseData = aggregateByMonth(report.expense_trends, year);
     const cashFlowData = incomeData.map((income, index) => income - expenseData[index]);
+    const categoriesData = aggregateByMonth(report.expense_categories, year);
 
     // Budget vs. Actual comparison
     const budgetedData = aggregateBudget(report.budget_vs_actual, year);
@@ -180,7 +181,7 @@ const Reports = () => {
                 <Bar data={barData} options={{ scales: { y: { beginAtZero: true } } }} />
             </div>
 
-            <h1>Monthly/Yearly Report</h1>
+            <h1>Categories Report</h1>
             <div className="report-controls">
                 <label>
                     Filter by Year:
@@ -224,7 +225,7 @@ const Reports = () => {
                 }} />
             </div>
 
-            {/* New Reports */}
+            {/* Cash flow Reports */}
             <h1>Monthly Cash Flow Report</h1>
             <div className="chart-container">
                 <Bar data={{

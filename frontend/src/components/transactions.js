@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { RingLoader } from 'react-spinners';
-import { faPlus, faEdit, faTrash, faCamera, faSave, faCancel } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEdit, faTrash, faCamera, faSave, faCancel, faImage } from '@fortawesome/free-solid-svg-icons';
 import './Transactions.css';
 
 const Transactions = () => {
@@ -204,7 +204,7 @@ const Transactions = () => {
                 <FontAwesomeIcon icon={faPlus} size='2x' />
             </button>
             <button onClick={() => setShowUploadForm(!showUploadForm)} title="Add transaction by scan receipt">
-                <FontAwesomeIcon icon={faCamera} size='2x' />
+                <FontAwesomeIcon icon={faImage} size='2x' />
             </button>
 
             {showAddForm && (
@@ -253,7 +253,7 @@ const Transactions = () => {
 
             {showUploadForm && (
                 <div className="upload-receipt-form">
-                    <h2>Upload Receipt <FontAwesomeIcon icon={faCamera} /></h2>
+                    <h2>Upload Receipt <FontAwesomeIcon icon={faImage} /></h2>
                     <input type="file" accept="image/*" onChange={handleImageUpload} />
                     <button onClick={handleImageSubmit}><FontAwesomeIcon icon={faSave} /> Process Image</button>
 

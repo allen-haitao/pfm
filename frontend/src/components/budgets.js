@@ -33,6 +33,7 @@ const Budgets = () => {
                 ...budget,
                 limits: parseFloat(budget.limits),
                 spent: parseFloat(budget.spent),
+                remain: parseFloat(parseFloat(budget.limits) - parseFloat(budget.spent))
             }));
 
             setBudgets(processedBudgets);
@@ -106,6 +107,13 @@ const Budgets = () => {
             );
         }
         return null;
+    };
+
+    const getRowStyle = (remain, limit) => {
+        const percentRemaining = (remain / limit) * 100;
+        if (remain < 0) return { backgroundColor: 'red', color: 'white' };
+        if (percentRemaining < 10) return { backgroundColor: 'yellow', color: 'black' };
+        return {};
     };
 
     if (loading) {
@@ -205,12 +213,13 @@ const Budgets = () => {
                         <th>Month/Year</th>
                         <th>Limit</th>
                         <th>Spent</th>
+                        <th>Remain</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {budgets.map(budget => (
-                        <tr key={budget.id}>
+                        <tr key={budget.id} style={getRowStyle(budget.remain, budget.limits)}>
                             <td>{budget.category.name}</td>
                             <td>{budget.period_type.charAt(0).toUpperCase() + budget.period_type.slice(1)}</td>
                             <td>
@@ -220,6 +229,7 @@ const Budgets = () => {
                             </td>
                             <td>${budget.limits.toFixed(2)}</td>
                             <td>${budget.spent.toFixed(2)}</td>
+                            <td>${budget.remain.toFixed(2)}</td>
                             <td>
                                 <button onClick={() => setEditingBudget(budget)}><FontAwesomeIcon icon={faEdit} /></button>
                                 <button onClick={() => handleDeleteBudget(budget.id)}><FontAwesomeIcon icon={faTrash} /></button>
