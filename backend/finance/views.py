@@ -6,6 +6,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
+from django_ratelimit.decorators import ratelimit
 from django.db.models import Sum
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -69,6 +70,7 @@ class LoginView(generics.GenericAPIView):
             'password': openapi.Schema(type=openapi.TYPE_STRING, description='Password'),
         }
     ))
+    @ratelimit(key='ip', rate='5/m', method='POST', block=True)  # Allow 5 attempts per minute
     def post(self, request, *args, **kwargs):
         """
         User login endpoint to obtain JWT tokens.
