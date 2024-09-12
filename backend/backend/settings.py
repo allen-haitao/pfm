@@ -83,14 +83,26 @@ WSGI_APPLICATION = "backend.wsgi.app"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+#DATABASES = {
+#    "default": {
+#        "ENGINE": "django.db.backends.postgresql_psycopg2",
+#        "NAME":"pfmdb",
+#        'USER': 'pfm',     # user name of database
+#        'PASSWORD': 'pfm@576',     # password
+#        'HOST': 'localhost',    # database server ip
+#        'PORT': '5432',         # database server port
+#    }
+#}
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME":"pfmdb",
-        'USER': 'pfm',     # user name of database
-        'PASSWORD': 'pfm@576',     # password
-        'HOST': 'localhost',    # database server ip
-        'PORT': '5432',         # database server port
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'URL': os.getenv('POSTGRES_URL'),
+        'NAME': os.getenv('POSTGRES_DATABASE'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': os.getenv('POSTGRES_HOST'),
+        'PORT': '5432',
     }
 }
 
