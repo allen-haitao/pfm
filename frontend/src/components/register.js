@@ -24,14 +24,14 @@ const Register = ({ setAuth }) => {
                 { username, email, password }
             );
 
-            if (response.status != 201) {
+            if (response.status !== 201) {
                 throw new Error('Failed to register');
             }
 
             //const data = response.data;
             //localStorage.setItem('access_token', data.token);
             //setAuth(true);
-            navigate('/');  // Redirect to the dashboard or login page
+            navigate('/');  // Redirect login page
         } catch (err) {
             setError(err.response?.data?.detail || err.message);
         } finally {

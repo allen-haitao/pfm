@@ -92,6 +92,26 @@ const Reports = () => {
         return monthlyTotals;
     };
 
+    //filter the categories spends by month or year
+    const filterExpenseTrends = (data, year, month, filterByYear) => {
+        const filteredData = data.filter(item => {
+            const matchesYear = Math.floor(item.year) === year;
+            const matchesMonth = filterByYear || Math.floor(item.month) === month;
+            return matchesYear && matchesMonth;
+        });
+
+        // Aggregate data by category
+        const categoryTotals = {};
+        filteredData.forEach(item => {
+            if (!categoryTotals[item.category_name]) {
+                categoryTotals[item.category_name] = 0;
+            }
+            categoryTotals[item.category_name] += parseFloat(item.total || 0);
+        });
+
+        return categoryTotals;
+    };
+
     // Prepare data for the charts
     const incomeData = aggregateByMonth(report.income_trends, year);
     const expenseData = aggregateByMonth(report.expense_trends, year);
@@ -181,50 +201,6 @@ const Reports = () => {
                 <Bar data={barData} options={{ scales: { y: { beginAtZero: true } } }} />
             </div>
 
-            <h1>Categories Report</h1>
-            <div className="report-controls">
-                <label>
-                    Filter by Year:
-                    <input
-                        type="checkbox"
-                        checked={filterByYear}
-                        onChange={() => setFilterByYear(!filterByYear)}
-                    />
-                </label>
-                <label>
-                    Month:
-                    <input
-                        type="number"
-                        value={month}
-                        onChange={(e) => setMonth(parseInt(e.target.value, 10))}
-                        min="1"
-                        max="12"
-                        disabled={filterByYear} // Disable month selection if filtering by year
-                    />
-                </label>
-                <label>
-                    Year:
-                    <input
-                        type="number"
-                        value={year}
-                        onChange={(e) => setYear(parseInt(e.target.value, 10))}
-                        min="2000"
-                        max={new Date().getFullYear()}
-                    />
-                </label>
-            </div>
-            <div className="chart-container">
-                <Pie data={{
-                    labels: report.expense_categories.map(cat => cat.category__name),
-                    datasets: [{
-                        data: report.expense_categories.map(cat => parseFloat(cat.total) || 0),
-                        backgroundColor: report.expense_categories.map(() => getRandomColor()),
-                        hoverOffset: 4,
-                        /*backgroundColor: ['#2196f3', '#ffeb3b', '#f44336', '#4caf50', '#9c27b0'],*/
-                    }]
-                }} />
-            </div>
-
             {/* Cash flow Reports */}
             <h1>Monthly Cash Flow Report</h1>
             <div className="chart-container">
@@ -260,16 +236,63 @@ const Reports = () => {
                 <Bar data={budgetVsActualData} options={{ scales: { y: { beginAtZero: true } } }} />
             </div>
 
-            <h1>Year-End Financial Summary</h1>
-            <div className="chart-container">
-                <Pie data={{
-                    labels: ['Income', 'Expenses'],
-                    datasets: [{
-                        data: [report.year_end_summary.total_income, report.year_end_summary.total_expenses],
-                        backgroundColor: ['#4caf50', '#f44336'],
-                    }]
-                }} />
+            <div className="pie-chart-row">
+                <div className="pie-chart-left">
+                    <h3>Expense Categories </h3>
+                    <div className="report-controls">
+                        <label>
+                            Filter by Year:
+                            <input
+                                type="checkbox"
+                                checked={filterByYear}
+                                onChange={() => setFilterByYear(!filterByYear)}
+                            />
+                        </label>
+                        <label>
+                            Month:
+                            <input
+                                type="number"
+                                value={month}
+                                onChange={(e) => setMonth(parseInt(e.target.value, 10))}
+                                min="1"
+                                max="12"
+                                disabled={filterByYear} // Disable month selection if filtering by year
+                            />
+                        </label>
+                        <label>
+                            Year:
+                            <input
+                                type="number"
+                                value={year}
+                                onChange={(e) => setYear(parseInt(e.target.value, 10))}
+                                min="2000"
+                                max={new Date().getFullYear()}
+                            />
+                        </label>
+                    </div>
+                    <Pie data={{
+                        labels: Object.keys(filterExpenseTrends(report.expense_trends, year, month, filterByYear)),
+                        datasets: [{
+                            data: Object.values(filterExpenseTrends(report.expense_trends, year, month, filterByYear)),
+                            backgroundColor: Object.keys(filterExpenseTrends(report.expense_trends, year, month, filterByYear)).map(() => getRandomColor()),
+                            hoverOffset: 4,
+                        }]
+                    }}
+                        options={{
+                            plugins: {
+                                legend: {
+                                    position: 'left', // Position legend on the left
+                                    align: 'left',  // Align the legend items vertically in the center
+                                    labels: {
+                                        boxWidth: 20, // Control the size of the legend box
+                                    }
+                                }
+                            }
+                        }} />
+                </div>
+
             </div>
+
         </div>
     );
 };

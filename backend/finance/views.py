@@ -70,7 +70,7 @@ class LoginView(generics.GenericAPIView):
             'password': openapi.Schema(type=openapi.TYPE_STRING, description='Password'),
         }
     ))
-    @ratelimit(key='ip', rate='5/m', method='POST', block=True)  # Allow 5 attempts per minute
+    #@ratelimit(key='ip', rate='10/m', method='POST', block=True)  # Allow 5 attempts per minute
     def post(self, request, *args, **kwargs):
         """
         User login endpoint to obtain JWT tokens.
