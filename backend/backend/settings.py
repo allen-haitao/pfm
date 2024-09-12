@@ -77,7 +77,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "backend.wsgi.application"
+WSGI_APPLICATION = "backend.wsgi.app"
 
 
 # Database
@@ -177,3 +177,4 @@ SWAGGER_SETTINGS = {
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True 
 CORS_ALLOW_HEADERS = ('*')
+ALLOWED_HOSTS = ['127.0.0.1', '.vercel.app']
