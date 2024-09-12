@@ -54,6 +54,7 @@ class RegisterView(generics.CreateAPIView):
         - username: str
         - email: str
         """
+        logger.info('user register request')
         return super().post(request, *args, **kwargs)
 
 class LoginView(generics.GenericAPIView):
