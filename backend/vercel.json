@@ -4,6 +4,8 @@
         "use": "@vercel/python"
     }],
     "routes": [
+        { "src": "/favicon.ico", "status": 204 },
+        { "src": "/favicon.png", "status": 204 },
         { "src": "/", "status": 404 },
         {
             "src": "/(.*)",
