@@ -22,7 +22,6 @@ def home(request):
     return JsonResponse({"message": "This is a backend API, no frontend available."})
 
 urlpatterns = [
-    path('', home),  
     path("admin/", admin.site.urls),
     path('', include('finance.urls')),
 ]
