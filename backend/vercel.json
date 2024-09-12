@@ -4,6 +4,7 @@
         "use": "@vercel/python"
     }],
     "routes": [
+        { "src": "/", "status": 404 },
         {
             "src": "/(.*)",
             "dest": "backend/wsgi.py"
