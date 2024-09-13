@@ -24,6 +24,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Migrations
+        working-directory: ./backend
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
