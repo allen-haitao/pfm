@@ -6,11 +6,8 @@
     {
       "src": "api/migrate.py",
       "use": "@vercel/python"
-    },
-    {
-        "src": "manage.py migrate",
-        "use": "@vercel/python"
     }],
+    
     "routes": [
         {
             "src": "/api/migrate",
