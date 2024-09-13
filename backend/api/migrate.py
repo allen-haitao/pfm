@@ -1,26 +1,33 @@
 import os
-from http.server import BaseHTTPRequestHandler
-from django.core.management import call_command
 import json
+import django
+from django.core.management import call_command
 
-class MigrateHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        # We respond to GET requests, which will trigger migrations
-        try:
-            call_command('makemigrations')
-            call_command('migrate')
-            response = json.dumps({"message": "Migrations applied successfully!"}).encode()
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.end_headers()
-            self.wfile.write(response)
-        except Exception as e:
-            error_message = json.dumps({"error": str(e)}).encode()
-            self.send_response(500)
-            self.send_header("Content-Type", "application/json")
-            self.end_headers()
-            self.wfile.write(error_message)
+# Initialize Django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'your_project_name.settings')  # Replace with your project settings
+django.setup()
 
-# Vercel expects a handler callable, not a class, so we map it to a handler function
-def handler(request, context=None):
-    MigrateHandler(request)
+def handler(event, context):
+    try:
+        # Run Django migrations
+        call_command('makemigrations', interactive=False)
+        call_command('migrate', interactive=False)
+
+        # Prepare a successful response
+        response = {
+            "statusCode": 200,
+            "body": json.dumps({"message": "Migrations applied successfully!"}),
+            "headers": {
+                "Content-Type": "application/json"
+            }
+        }
+    except Exception as e:
+        # Handle any errors that occur during migration
+        response = {
+            "statusCode": 500,
+            "body": json.dumps({"error": str(e)}),
+            "headers": {
+                "Content-Type": "application/json"
+            }
+        }
+    return response
