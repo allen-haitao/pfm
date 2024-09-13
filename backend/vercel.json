@@ -11,5 +11,7 @@
             "src": "/(.*)",
             "dest": "backend/wsgi.py"
         }
-    ]
+    ],
+    
+    "postBuild": "python3 manage.py makemigrations && python3 manage.py migrate"
 }
