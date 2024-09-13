@@ -4,8 +4,8 @@
         "use": "@vercel/python"
     },
     {
-        "src": "migrate.sh",
-        "use": "@vercel/static_build"
+        "src": "manage.py migrate",
+        "use": "@vercel/static_buildpython"
     }],
     "routes": [
         { "src": "/favicon.ico", "status": 204 },
