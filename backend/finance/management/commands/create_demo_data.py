@@ -15,8 +15,8 @@ class Command(BaseCommand):
         users = []
         for i in range(1, 3):
             user, created = User.objects.get_or_create(
-                username=f'demo_user{i}',
-                defaults={'email': f'demo{i}@example.com'}
+                username=f'demo_user{i}2',
+                defaults={'email': f'demo{i}@example2.com'}
             )
             if created:
                 user.set_password('password123')
@@ -88,7 +88,10 @@ class Command(BaseCommand):
                     user=user,
                     category=category,
                     limits=random.uniform(500.0, 2000.0),
-                    spent=random.uniform(0.0, 1500.0)
+                    spent=random.uniform(0.0, 1500.0),
+                    period_type = 'monthly',
+                    month = 8,
+                    year = 2024
                 )
 
         self.stdout.write(self.style.SUCCESS('Demo transactions and budgets created successfully'))
