@@ -31,6 +31,14 @@ jobs:
           python manage.py makemigrations
           python manage.py migrate
 
+      - name: Run Custom command
+        working-directory: ./backend
+        env:
+          DATABASE_URL: postgres://default:kxKu1TZna6Mr@ep-dry-snowflake-a4czgkr8-pooler.us-east-1.aws.neon.tech/verceldb
+        run: |
+          python manage.py create_default_categories
+          python manage.py create_demo_data
+
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v20
         with:

@@ -79,7 +79,7 @@ class Command(BaseCommand):
                     amount=amount,
                     category=category,
                     occu_date=date,
-                    notes='This is a demo transaction'
+                    notes='test data'
                 )
 
             # Create budgets for the user
