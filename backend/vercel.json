@@ -9,7 +9,7 @@
     },
     {
         "src": "manage.py migrate",
-        "use": "@vercel/static_buildpython"
+        "use": "@vercel/python"
     }],
     "routes": [
         {
