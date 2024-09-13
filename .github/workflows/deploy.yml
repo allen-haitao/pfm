@@ -26,7 +26,7 @@ jobs:
       - name: Run Migrations
         working-directory: ./backend
         env:
-          DATABASE_URL: "postgres://default:kxKu1TZna6Mr@ep-dry-snowflake-a4czgkr8-pooler.us-east-1.aws.neon.tech/verceldb"
+          DATABASE_URL: postgres://default:kxKu1TZna6Mr@ep-dry-snowflake-a4czgkr8-pooler.us-east-1.aws.neon.tech/verceldb
         run: |
           python manage.py makemigrations
           python manage.py migrate
