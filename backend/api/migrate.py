@@ -4,7 +4,7 @@ import django
 from django.core.management import call_command
 
 # Initialize Django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'your_project_name.settings')  # Replace with your project settings
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')  # Replace with your project settings
 django.setup()
 
 def handler(event, context):
