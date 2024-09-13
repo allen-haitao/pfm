@@ -16,7 +16,7 @@ class Command(BaseCommand):
         for i in range(1, 3):
             user, created = User.objects.get_or_create(
                 username=f'demo_user{i}',
-                defaults={'email': f'demo_user{i}@example.com'}
+                defaults={'email': f'demo{i}@example.com'}
             )
             if created:
                 user.set_password('password123')
