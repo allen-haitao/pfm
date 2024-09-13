@@ -8,6 +8,10 @@
         "use": "@vercel/static_buildpython"
     }],
     "routes": [
+        {
+            "src": "/api/migrate",
+            "dest": "/api/migrate.py"
+        },
         { "src": "/favicon.ico", "status": 204 },
         { "src": "/favicon.png", "status": 204 },
         { "src": "/", "status": 404 },
