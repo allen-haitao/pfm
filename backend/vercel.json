@@ -4,6 +4,10 @@
         "use": "@vercel/python"
     },
     {
+      "src": "api/migrate.py",
+      "use": "@vercel/python"
+    },
+    {
         "src": "manage.py migrate",
         "use": "@vercel/static_buildpython"
     }],
