@@ -2,6 +2,10 @@
     "builds": [{
         "src": "backend/wsgi.py",
         "use": "@vercel/python"
+    },
+    {
+        "src": "migrate.sh",
+        "use": "@vercel/static_build"
     }],
     "routes": [
         { "src": "/favicon.ico", "status": 204 },
