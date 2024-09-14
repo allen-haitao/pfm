@@ -7,7 +7,9 @@ from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+import logging
 
+logger = logging.getLogger(__name__)
 User = get_user_model()
 
 
