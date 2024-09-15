@@ -68,10 +68,15 @@ const Dashboard = () => {
                     </thead>
                     <tbody>
                         {dashboardData.recent_notification.map((notification) => (
-                            <tr key={notification.id}>
+                            <tr key={notification.id}
+                                style={{
+                                    backgroundColor: notification.types === 'warning' ? '#b51222' :
+                                        notification.types === 'info' ? '#ffcccb' :
+                                            'transparent'
+                                }}>
                                 <td>{notification.notify}</td>
                                 <td>{notification.types}</td>
-                                <td>${notification.create_time}</td>
+                                <td>{new Date(notification.create_time).toLocaleDateString()}</td>
                             </tr>
                         ))}
                     </tbody>

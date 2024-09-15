@@ -15,6 +15,7 @@ import logging
 from django.db.models import Sum, F, Func, Value
 from ..receipt import process_img
 import base64
+import calendar
 
 
 logger = logging.getLogger(__name__)
@@ -100,7 +101,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
                     # warning
                     notification = Notification.objects.create(
                         user=request.user,
-                        notify=f"Spending has exceeded {category.name} budget of month {budget.month}. ",
+                        notify=f"Spending has exceeded {category.name} budget of {calendar.month_name[budget.month]}. ",
                         types="warning",
                     )
                     notification.save()
@@ -108,7 +109,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
                     # info
                     notification = Notification.objects.create(
                         user=request.user,
-                        notify=f" {category.name} Spent {per*100}% budget of month {budget.month}. ",
+                        notify=f" {category.name} spent {per*100}% budget of {calendar.month_name[budget.month]}. ",
                         types="info",
                     )
                     notification.save()
