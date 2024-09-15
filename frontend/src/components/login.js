@@ -10,8 +10,8 @@ const Login = ({ handleLogin }) => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
+        //e.preventDefault();
         try {
             const response = await api.post('login/', {
                 email: email,
