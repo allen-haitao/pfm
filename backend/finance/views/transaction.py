@@ -31,7 +31,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Transactions.objects.filter(user_id=self.request.user.id).order_by(
-            "-occu_data"
+            "-occu_date"
         )
 
     @swagger_auto_schema(
