@@ -38,7 +38,7 @@ const App = () => {
 
   return (
     <Router>
-      <Navbar isAuthenticated={isAuthenticated} susername={username} handleLogout={handleLogout} />
+      <Navbar isAuthenticated={isAuthenticated} susername={username} handleLogout={handleLogout} handleLogin={handleLogin} />
       <div className="main-content">
         <Routes>
           <Route path="/register" element={isAuthenticated ? <Navigate to="/" /> : <Register setAuth={setAuth} />} />

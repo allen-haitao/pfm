@@ -4,7 +4,7 @@ import api from "../services/api"
 import './Login.css';
 
 
-const Login = ({ onLogin }) => {
+const Login = ({ handleLogin }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -18,7 +18,8 @@ const Login = ({ onLogin }) => {
                 password: password,
             });
 
-            onLogin(response.data.access, response.data.refresh, response.data.username);
+            handleLogin(response.data.access, response.data.refresh, response.data.username);
+
             navigate('/');
         } catch (err) {
             setError('Invalid email or password');
