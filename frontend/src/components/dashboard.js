@@ -72,7 +72,6 @@ const Dashboard = () => {
                                 style={{
                                     backgroundColor: notification.types === 'warning' ? '#b51222' :
                                         notification.types === 'info' ? '#ffcccb' :
-                                            'transparent'
                                 }}>
                                 <td>{notification.notify}</td>
                                 <td>{notification.types}</td>
