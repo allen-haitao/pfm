@@ -9,6 +9,7 @@ import Transactions from './components/transactions';
 import Budgets from './components/budgets';
 import Categories from './components/categories';
 import Reports from './components/reports';
+import Footer from './components/footer';
 import './App.css';
 
 const App = () => {
@@ -50,6 +51,7 @@ const App = () => {
           <Route path="/reports" element={isAuthenticated ? <Reports /> : <Navigate to="/login" />} />
           <Route path="/" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
         </Routes>
+        <Footer />
       </div>
     </Router>
   );
