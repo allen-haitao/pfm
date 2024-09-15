@@ -13,6 +13,24 @@ import './App.css';
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('access_token'));
+  const [username, setUsername] = useState(localStorage.getItem('username') || '');
+
+  const handleLogin = (accessToken, refreshToken, username) => {
+    localStorage.setItem('access_token', accessToken);
+    localStorage.setItem('refresh_token', refreshToken);
+    localStorage.setItem('username', username);
+
+    setIsAuthenticated(true);
+    setUsername(username); // Set username in state
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('username');
+    setIsAuthenticated(false);
+    setUsername(''); // Clear username in state
+  };
 
   const setAuth = (authStatus) => {
     setIsAuthenticated(authStatus);

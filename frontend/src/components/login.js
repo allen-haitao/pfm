@@ -4,7 +4,7 @@ import api from "../services/api"
 import './Login.css';
 
 
-const Login = ({ setAuth }) => {
+const Login = ({ onLogin }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -18,10 +18,7 @@ const Login = ({ setAuth }) => {
                 password: password,
             });
 
-            localStorage.setItem('access_token', response.data.access);
-            localStorage.setItem('refresh_token', response.data.refresh);
-            localStorage.setItem('username', response.data.username);
-            setAuth(true);
+            onLogin(response.data.access, response.data.refresh, response.data.username);
             navigate('/');
         } catch (err) {
             setError('Invalid email or password');

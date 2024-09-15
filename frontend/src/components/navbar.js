@@ -4,26 +4,7 @@ import { faChartLine, faDashboard, faExchange, faTags, faUser, faPiggyBank, faRe
 import { Link, useNavigate } from 'react-router-dom';
 import './Navbar.css';
 
-const Navbar = ({ isAuthenticated, setAuth }) => {
-    const navigate = useNavigate();
-    const [username, setUsername] = useState('');
-
-    const handleLogout = () => {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('username'); // Clear username on logout
-        setAuth(false);
-        window.location.assign('/');
-    };
-    useEffect(() => {
-        // Retrieve username from localStorage
-        const storedUsername = localStorage.getItem('username');
-        console.log("Retrieved username:", storedUsername);
-        if (storedUsername) {
-            setUsername(storedUsername);
-        }
-    }, []);
-
+const Navbar = ({ isAuthenticated, username, handleLogout }) => {
     return (
         <nav className="navbar">
             <div className="navbar-container">
