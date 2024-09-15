@@ -18,6 +18,7 @@ const Navbar = ({ isAuthenticated, setAuth }) => {
     useEffect(() => {
         // Retrieve username from localStorage
         const storedUsername = localStorage.getItem('username');
+        console.log("Retrieved username:", storedUsername);
         if (storedUsername) {
             setUsername(storedUsername);
         }
@@ -47,7 +48,7 @@ const Navbar = ({ isAuthenticated, setAuth }) => {
                     )}
                     {isAuthenticated && (
                         <>
-                            <li className="navbar-username">Hello, {username}</li>
+                            <li className="navbar-username"> {username}</li>
                             <li><Link to="/"
                                 onClick={(e) => {
                                     e.preventDefault(); // Prevent the default link behavior
