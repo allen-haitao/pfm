@@ -76,7 +76,7 @@ const Dashboard = () => {
                                 }}>
                                 <td>{notification.notify}</td>
                                 <td>{notification.types}</td>
-                                <td>{new Date(notification.create_time).toLocaleDateString()}</td>
+                                <td>{notification.create_time}</td>
                             </tr>
                         ))}
                     </tbody>
