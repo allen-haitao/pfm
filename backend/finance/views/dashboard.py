@@ -54,7 +54,7 @@ class DashboardView(APIView):
         #    recent_transactions, many=True
         # ).data
 
-        notifications = Notification.objects.filter(ser_id=user.id).order_by(
+        notifications = Notification.objects.filter(user_id=user.id).order_by(
             "-create_time"
         )[:5]
 
