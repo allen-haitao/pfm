@@ -11,13 +11,11 @@ const Dashboard = () => {
         const fetchDashboardData = async () => {
             try {
                 const response = await api.get('/dashboard/');
-
-                // Convert the amounts in recent_transactions to floats
                 const processedData = {
                     ...response.data,
                     total_income: parseFloat(response.data.total_income),
                     total_expenses: parseFloat(response.data.total_expenses),
-                    recent_notification: response.data.recent_notofication.map(notification => ({
+                    recent_notification: response.data.recent_notification.map(notification => ({
                         ...notification,
                     })),
                 };
@@ -72,8 +70,8 @@ const Dashboard = () => {
                         {dashboardData.recent_notification.map((notification) => (
                             <tr key={notification.id}>
                                 <td>{notification.notify}</td>
-                                <td>{transaction.types}</td>
-                                <td>${transaction.create_time}</td>
+                                <td>{notification.types}</td>
+                                <td>${notification.create_time}</td>
                             </tr>
                         ))}
                     </tbody>
