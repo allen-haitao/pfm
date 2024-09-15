@@ -61,3 +61,8 @@
       display: block;
     }
   }
+  .navbar-username {
+    font-size: 1.2em;
+    color: #fff; /* Or any color of your choice */
+    margin-right: 20px;
+}

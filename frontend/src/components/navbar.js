@@ -6,13 +6,23 @@ import './Navbar.css';
 
 const Navbar = ({ isAuthenticated, setAuth }) => {
     const navigate = useNavigate();
+    const [username, setUsername] = useState('');
 
     const handleLogout = () => {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
+        localStorage.removeItem('username'); // Clear username on logout
         setAuth(false);
         window.location.assign('/');
     };
+    useEffect(() => {
+        // Retrieve username from localStorage
+        const storedUsername = localStorage.getItem('username');
+        if (storedUsername) {
+            setUsername(storedUsername);
+        }
+    }, []);
+
     return (
         <nav className="navbar">
             <div className="navbar-container">
@@ -20,7 +30,7 @@ const Navbar = ({ isAuthenticated, setAuth }) => {
                     <img src="/logo.webp" alt="Finance Tracker Logo" className="navbar-logo" />
                 </div>
                 <div className="slogan">
-                    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;500&display=swap" rel="stylesheet"></link>
+                    <link href="https://fonts.googleapis.com/css2?family=Gluten:wght@100..900&display=swap" rel="stylesheet"></link>
                     Your Path to Financial Freedom</div>
                 <ul className="navbar-menu">
                     <li><Link to="/"><FontAwesomeIcon icon={faDashboard} size='1x' /> Dashboard</Link></li>
@@ -37,6 +47,7 @@ const Navbar = ({ isAuthenticated, setAuth }) => {
                     )}
                     {isAuthenticated && (
                         <>
+                            <li className="navbar-username">Hello, {username}</li>
                             <li><Link to="/"
                                 onClick={(e) => {
                                     e.preventDefault(); // Prevent the default link behavior

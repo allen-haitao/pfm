@@ -91,6 +91,7 @@ class LoginView(generics.GenericAPIView):
             {
                 "refresh": str(refresh),
                 "access": str(refresh.access_token),
+                "username": user.username,
             }
         )
 
