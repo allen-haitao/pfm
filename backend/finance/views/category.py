@@ -16,7 +16,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Categories.objects.for_user(self.request.user)
+        return Categories.objects.for_user(self.request.user).order_by("-create_time")
 
     @swagger_auto_schema(
         operation_description="List user categories",

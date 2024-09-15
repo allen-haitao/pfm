@@ -30,7 +30,9 @@ class TransactionViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Transactions.objects.filter(user_id=self.request.user.id)
+        return Transactions.objects.filter(user_id=self.request.user.id).order_by(
+            "-occu_data"
+        )
 
     @swagger_auto_schema(
         operation_description="List user transactions",

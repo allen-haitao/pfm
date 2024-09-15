@@ -16,7 +16,9 @@ class BudgetViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Budgets.objects.filter(user_id=self.request.user.id)
+        return Budgets.objects.filter(user_id=self.request.user.id).order_by(
+            "-year", "-month"
+        )
 
     @swagger_auto_schema(
         operation_description="List user budgets",
