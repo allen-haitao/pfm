@@ -57,7 +57,7 @@ const Dashboard = () => {
                 </div>
             </div>
             <div className="recent-notification">
-                <h2>Recent Transactions</h2>
+                <h2>Recent Notifications</h2>
                 <table className="transactions-table">
                     <thead>
                         <tr>
@@ -72,6 +72,7 @@ const Dashboard = () => {
                                 style={{
                                     backgroundColor: notification.types === 'warning' ? '#b51222' :
                                         notification.types === 'info' ? '#ffcccb' :
+                                            'transparent'
                                 }}>
                                 <td>{notification.notify}</td>
                                 <td>{notification.types}</td>

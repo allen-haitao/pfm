@@ -138,5 +138,5 @@ class TransactionSerializer(serializers.ModelSerializer):
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
-        fields = ["id", "user_id", "notify", "types"]
+        fields = ["id", "user_id", "notify", "types", "create_time"]
         read_only_fields = ["id"]
