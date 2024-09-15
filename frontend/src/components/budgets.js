@@ -147,13 +147,7 @@ const Budgets = () => {
                     value={newBudget.limits}
                     onChange={(e) => setNewBudget({ ...newBudget, limits: e.target.value })}
                 />
-                <select
-                    value={newBudget.period_type}
-                    onChange={(e) => setNewBudget({ ...newBudget, period_type: e.target.value })}
-                >
-                    <option value="monthly">Monthly</option>
-                    <option value="yearly">Yearly</option>
-                </select>
+
                 {renderDateFields()}
                 <label htmlFor="year">Year:</label>
                 <input
@@ -185,13 +179,7 @@ const Budgets = () => {
                         value={editingBudget.limits}
                         onChange={(e) => setEditingBudget({ ...editingBudget, limits: e.target.value })}
                     />
-                    <select
-                        value={editingBudget.period_type}
-                        onChange={(e) => setEditingBudget({ ...editingBudget, period_type: e.target.value })}
-                    >
-                        <option value="monthly">Monthly</option>
-                        <option value="yearly">Yearly</option>
-                    </select>
+
                     {renderDateFields()}
                     <label htmlFor="year">Year:</label>
                     <input
