@@ -2,10 +2,11 @@
     background-color: #0B3289;
     color: #F8B37F;
     text-align: center;
-    padding: 20px;
+    padding:  10px 20px;
     position: fixed;
     bottom: 0;
     width: 100%;
+    height: 60px;
     font-size: 0.9em;
     z-index: 1000;
 }

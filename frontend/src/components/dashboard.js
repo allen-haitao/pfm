@@ -71,7 +71,7 @@ const Dashboard = () => {
                             <tr key={notification.id}
                                 style={{
                                     color: notification.types === 'warning' ? '#b51222' :
-                                        notification.types === 'info' ? '#ffcccb' :
+                                        notification.types === 'info' ? '#e4a21e' :
                                             'black'
                                 }}>
                                 <td>{notification.notify}</td>
