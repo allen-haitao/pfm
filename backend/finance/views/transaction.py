@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.decorators import action
-from ..models import Transactions, Categories, Budgets
+from ..models import Transactions, Categories, Budgets, Notification
 from ..serializers import TransactionSerializer, CategorySerializer
 from decimal import Decimal
 from drf_yasg.utils import swagger_auto_schema
@@ -94,6 +94,24 @@ class TransactionViewSet(viewsets.ModelViewSet):
                 # Update the spent value
                 budget.spent += transaction.amount
                 budget.save()
+                # if spending is more than the budget, generate a notification
+                per = budget.spent / budget.limits
+                if per >= 1:
+                    # warning
+                    notification = Notification.objects.create(
+                        user=request.user,
+                        notify=f"Spending has exceeded {category.name} budget of month {budget.month}. ",
+                        types="warning",
+                    )
+                    notification.save()
+                elif per >= 0.9:
+                    # info
+                    notification = Notification.objects.create(
+                        user=request.user,
+                        notify=f" {category.name} Spent {per*100}% budget of month {budget.month}. ",
+                        types="info",
+                    )
+                    notification.save()
             except Budgets.DoesNotExist:
                 print("no budget updated")
         return Response(

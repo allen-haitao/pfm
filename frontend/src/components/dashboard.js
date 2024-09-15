@@ -17,10 +17,8 @@ const Dashboard = () => {
                     ...response.data,
                     total_income: parseFloat(response.data.total_income),
                     total_expenses: parseFloat(response.data.total_expenses),
-                    recent_transactions: response.data.recent_transactions.map(transaction => ({
-                        ...transaction,
-                        type: transaction.types,
-                        amount: parseFloat(transaction.amount),
+                    recent_notification: response.data.recent_notofication.map(notification => ({
+                        ...notification,
                     })),
                 };
 
@@ -60,26 +58,22 @@ const Dashboard = () => {
                     <p>${(dashboardData.total_income - dashboardData.total_expenses).toFixed(2)}</p>
                 </div>
             </div>
-            <div className="recent-transactions">
+            <div className="recent-notification">
                 <h2>Recent Transactions</h2>
                 <table className="transactions-table">
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>Category</th>
+                            <th>Notify</th>
                             <th>Type</th>
-                            <th>Amount</th>
-                            <th>Notes</th>
+                            <th>Date</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {dashboardData.recent_transactions.map((transaction) => (
-                            <tr key={transaction.id}>
-                                <td>{new Date(transaction.occu_date).toLocaleDateString()}</td>
-                                <td>{transaction.category_name}</td>
-                                <td>{transaction.type}</td>
-                                <td>${transaction.amount.toFixed(2)}</td>
-                                <td>{transaction.notes}</td>
+                        {dashboardData.recent_notification.map((notification) => (
+                            <tr key={notification.id}>
+                                <td>{notification.notify}</td>
+                                <td>{transaction.types}</td>
+                                <td>${transaction.create_time}</td>
                             </tr>
                         ))}
                     </tbody>

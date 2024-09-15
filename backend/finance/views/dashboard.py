@@ -2,8 +2,8 @@ from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from ..serializers import TransactionSerializer
-from ..models import Transactions
+from ..serializers import TransactionSerializer, NotificationSerializer
+from ..models import Transactions, Notification
 from django.contrib.auth import get_user_model
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -47,18 +47,25 @@ class DashboardView(APIView):
         ).aggregate(Sum("amount"))["amount__sum"] or Decimal("0.0")
         total_savings = total_income - total_expenses
 
-        recent_transactions = Transactions.objects.filter(user_id=user.id).order_by(
-            "-occu_date"
+        # recent_transactions = Transactions.objects.filter(user_id=user.id).order_by(
+        #    "-occu_date"
+        # )[:5]
+        # recent_transactions_data = TransactionSerializer(
+        #    recent_transactions, many=True
+        # ).data
+
+        notifications = Notification.objects.filter(ser_id=user.id).order_by(
+            "-create_time"
         )[:5]
-        recent_transactions_data = TransactionSerializer(
-            recent_transactions, many=True
-        ).data
+
+        recent_tnotification = NotificationSerializer(notifications, many=True).data
 
         return Response(
             {
                 "total_income": total_income,
                 "total_expenses": total_expenses,
                 "total_savings": total_savings,
-                "recent_transactions": recent_transactions_data,
+                # "recent_transactions": recent_transactions_data,
+                "recent_notification": recent_tnotification,
             }
         )
