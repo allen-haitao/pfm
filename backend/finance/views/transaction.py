@@ -103,7 +103,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
                     # warning
                     notification = Notification.objects.create(
                         user=request.user,
-                        notify=f"Spending has exceeded {category.name} budget of {calendar.month_name[budget.month]}. ",
+                        notify=f"{category.name} budget has been overspent for {calendar.month_name[budget.month]}. ",
                         types="warning",
                     )
                     notification.save()
@@ -111,7 +111,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
                     # info
                     notification = Notification.objects.create(
                         user=request.user,
-                        notify=f" {category.name} spent {per*100}% budget of {calendar.month_name[budget.month]}. ",
+                        notify=f"{per*100}% of the {calendar.month_name[budget.month]} {category.name} budget has been spent. ",
                         types="info",
                     )
                     notification.save()
