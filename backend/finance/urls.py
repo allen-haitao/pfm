@@ -51,6 +51,6 @@ urlpatterns = [
     path("dashboard/", DashboardView.as_view(), name="dashboard"),
     path("reports/", ReportView.as_view(), name="reports"),
     path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
-    path("google-login/", googlelogin, name="google-login"),
+    path("google-login/", googlelogin.google_login, name="google-login"),
     path("", include(router.urls)),
 ]

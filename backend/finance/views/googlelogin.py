@@ -31,8 +31,8 @@ def google_login(request):
 
         return Response(
             {
-                "access": str(refresh),
-                "refresh": str(refresh.access_token),
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
                 "username": user.username,
             },
             status=status.HTTP_200_OK,
