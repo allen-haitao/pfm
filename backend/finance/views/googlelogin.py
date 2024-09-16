@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
 from django.conf import settings
-from ..models import User
+from ..models import CustomUser
 
 
 @api_view(["POST"])
@@ -23,7 +23,7 @@ def google_login(request):
         google_user_id = idinfo["sub"]
 
         # Create or get a user in your system
-        user, created = User.objects.get_or_create(
+        user, created = CustomUser.objects.get_or_create(
             email=email, defaults={"username": email}
         )
 
