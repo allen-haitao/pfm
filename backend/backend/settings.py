@@ -17,7 +17,7 @@ import logging
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -28,7 +28,7 @@ SECRET_KEY = "django-insecure-h)s+mrpn$_8kgh7e+&5pik&aykw#%g&bxulsp4bepa@=qv(xb^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*'] 
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -45,6 +45,11 @@ INSTALLED_APPS = [
     "drf_yasg",
     "corsheaders",
     "finance",
+    "django.contrib.sites",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
 ]
 
 MIDDLEWARE = [
@@ -57,8 +62,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_ratelimit.middleware.RatelimitMiddleware",
-    'finance.middleware.LogBadRequestMiddleware'
-  
+    "finance.middleware.LogBadRequestMiddleware",
 ]
 
 ROOT_URLCONF = "backend.urls"
@@ -81,11 +85,27 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "backend.wsgi.app"
 
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APP": {
+            "client_id": "744737354297-gsjli5vd9kd0p3ogc3cmetbuffv70hk5.apps.googleusercontent.com",
+            "secret": "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",
+            "key": "",
+        }
+    }
+}
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-#DATABASES = {
+# DATABASES = {
 #    "default": {
 #        "ENGINE": "django.db.backends.postgresql_psycopg2",
 #        "NAME":"pfmdb",
@@ -94,57 +114,57 @@ WSGI_APPLICATION = "backend.wsgi.app"
 #        'HOST': 'localhost',    # database server ip
 #        'PORT': '5432',         # database server port
 #    }
-#}
+# }
 from urllib.parse import urlparse
-DATABASE_URL = os.environ.get('DATABASE_URL')
+
+DATABASE_URL = os.environ.get("DATABASE_URL")
 if DATABASE_URL:
     url = urlparse(DATABASE_URL)
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': url.path[1:],  #
-            'USER': url.username,
-            'PASSWORD': url.password,
-            'HOST': url.hostname,
-            'PORT': 5432,
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": url.path[1:],  #
+            "USER": url.username,
+            "PASSWORD": url.password,
+            "HOST": url.hostname,
+            "PORT": 5432,
         }
     }
 else:
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('POSTGRES_DATABASE'),
-            'USER': os.getenv('POSTGRES_USER'),
-            'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-            'HOST': os.getenv('POSTGRES_HOST'),
-            'PORT': '5432',
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("POSTGRES_DATABASE"),
+            "USER": os.getenv("POSTGRES_USER"),
+            "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+            "HOST": os.getenv("POSTGRES_HOST"),
+            "PORT": "5432",
+        }
     }
-}
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-    'DEFAULT_SCHEMA_CLASS':
-        'rest_framework.schemas.AutoSchema',
-    'DEFAULT_PRASER_CLASSES':[
-        'rest_frameworks.prasers.FormPraser',
-        'rest_frameworks.prasers.MultiPartPraser',
-        'rest_frameworks.prasers.JSONPraser',
-    ]
+    "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.AutoSchema",
+    "DEFAULT_PRASER_CLASSES": [
+        "rest_frameworks.prasers.FormPraser",
+        "rest_frameworks.prasers.MultiPartPraser",
+        "rest_frameworks.prasers.JSONPraser",
+    ],
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),  
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
-    'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY,
-    'AUTH_HEADER_TYPES': ('Bearer',),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY,
+    "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
-AUTH_USER_MODEL = 'finance.CustomUser'
+AUTH_USER_MODEL = "finance.CustomUser"
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -186,37 +206,37 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 SWAGGER_SETTINGS = {
-    'SECURITY_DEFINITIONS': {
-        "Bearer":{
-            'type': 'apiKey',
-            'in':'header',
-            'name':'Authorization',
+    "SECURITY_DEFINITIONS": {
+        "Bearer": {
+            "type": "apiKey",
+            "in": "header",
+            "name": "Authorization",
         }
-    }, 
-    'LOGIN_URL': 'login',
-    'APIS_SORTER': 'alpha',
-    'JSON_EDITOR': True,
-    'OPERATIONS_SORTER': 'alpha',
-    'VALIDATOR_URL': None,
-    'SHOW_REQUEST_HEADERs': True,   
+    },
+    "LOGIN_URL": "login",
+    "APIS_SORTER": "alpha",
+    "JSON_EDITOR": True,
+    "OPERATIONS_SORTER": "alpha",
+    "VALIDATOR_URL": None,
+    "SHOW_REQUEST_HEADERs": True,
 }
 
 APPEND_SLASH = False
 
 CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True 
-CORS_ALLOW_HEADERS = ('*')
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = "*"
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
         },
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'DEBUG',  # Set to DEBUG to capture all logs
+    "root": {
+        "handlers": ["console"],
+        "level": "DEBUG",  # Set to DEBUG to capture all logs
     },
 }

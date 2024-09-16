@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 import api from "../services/api"
 import './Login.css';
 
@@ -24,6 +25,27 @@ const Login = ({ handleLogin }) => {
         } catch (err) {
             setError('Invalid email or password');
         }
+    };
+
+    // Handle Google login success
+    const handleGoogleLoginSuccess = async (response) => {
+        const googleToken = response.credential;
+
+        try {
+            // Send the Google token to your backend for verification
+            const serverResponse = await api.post('/google-login/', { token: googleToken });
+
+            // Assuming your backend returns access and refresh tokens
+            handleLogin(serverResponse.data.access, serverResponse.data.refresh, serverResponse.data.username);
+            navigate('/');
+        } catch (err) {
+            setError('Google login failed');
+        }
+    };
+
+    // Handle Google login failure
+    const handleGoogleLoginFailure = () => {
+        setError('Google login failed');
     };
 
     return (
@@ -53,7 +75,15 @@ const Login = ({ handleLogin }) => {
                 </div>
                 <button type="submit" className="login-button">Login</button>
             </form>
+            <div className="google-login">
+                <h2>Or</h2>
+                <GoogleLogin
+                    onSuccess={handleGoogleLoginSuccess}
+                    onError={handleGoogleLoginFailure}
+                />
+            </div>
         </div>
+
     );
 };
 

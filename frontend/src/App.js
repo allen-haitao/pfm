@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import Navbar from './components/navbar';
 import Register from './components/register';
 import Login from './components/login';
@@ -38,22 +39,24 @@ const App = () => {
   };
 
   return (
-    <Router>
-      <Navbar isAuthenticated={isAuthenticated} susername={username} handleLogout={handleLogout} />
-      <div className="main-content">
-        <Routes>
-          <Route path="/register" element={isAuthenticated ? <Navigate to="/" /> : <Register setAuth={setAuth} />} />
-          <Route path="/login" element={<Login handleLogin={handleLogin} />} />
-          <Route path="/profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />
-          <Route path="/transactions" element={isAuthenticated ? <Transactions /> : <Navigate to="/login" />} />
-          <Route path="/budgets" element={isAuthenticated ? <Budgets /> : <Navigate to="/login" />} />
-          <Route path="/categories" element={isAuthenticated ? <Categories /> : <Navigate to="/login" />} />
-          <Route path="/reports" element={isAuthenticated ? <Reports /> : <Navigate to="/login" />} />
-          <Route path="/" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
-        </Routes>
-        <Footer />
-      </div>
-    </Router>
+    <GoogleOAuthProvider clientId="744737354297-gsjli5vd9kd0p3ogc3cmetbuffv70hk5.apps.googleusercontent.com">
+      <Router>
+        <Navbar isAuthenticated={isAuthenticated} susername={username} handleLogout={handleLogout} />
+        <div className="main-content">
+          <Routes>
+            <Route path="/register" element={isAuthenticated ? <Navigate to="/" /> : <Register setAuth={setAuth} />} />
+            <Route path="/login" element={<Login handleLogin={handleLogin} />} />
+            <Route path="/profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />
+            <Route path="/transactions" element={isAuthenticated ? <Transactions /> : <Navigate to="/login" />} />
+            <Route path="/budgets" element={isAuthenticated ? <Budgets /> : <Navigate to="/login" />} />
+            <Route path="/categories" element={isAuthenticated ? <Categories /> : <Navigate to="/login" />} />
+            <Route path="/reports" element={isAuthenticated ? <Reports /> : <Navigate to="/login" />} />
+            <Route path="/" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
+          </Routes>
+          <Footer />
+        </div>
+      </Router>
+    </GoogleOAuthProvider >
   );
 };
 
