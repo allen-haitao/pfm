@@ -2,25 +2,9 @@
     "builds": [{
         "src": "backend/wsgi.py",
         "use": "@vercel/python"
-    },
-    {
-      "src": "api/migrate.py",
-      "use": "@vercel/python"
-    }],
-    "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,OPTIONS" }
-      ]
     }],
     
     "routes": [
-        {
-            "src": "/api/migrate",
-            "dest": "/api/migrate.py"
-        },
         { "src": "/favicon.ico", "status": 204 },
         { "src": "/favicon.png", "status": 204 },
         { "src": "/", "status": 404 },
@@ -28,5 +12,8 @@
             "src": "/(.*)",
             "dest": "backend/wsgi.py"
         }
-    ]
+    ],
+    "env": {
+        "PYTHON_VERSION": "3.9"
+      }
 }
