@@ -4,7 +4,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.decorators import action
 from ..models import Transactions, Categories, Budgets
 from ..serializers import BudgetSerializer
-from drf_yasg.utils import swagger_auto_schema
+
+# from drf_yasg.utils import swagger_auto_schema
 
 
 class BudgetViewSet(viewsets.ModelViewSet):
@@ -20,10 +21,10 @@ class BudgetViewSet(viewsets.ModelViewSet):
             "-year", "-month"
         )
 
-    @swagger_auto_schema(
-        operation_description="List user budgets",
-        responses={200: BudgetSerializer(many=True)},
-    )
+    # @swagger_auto_schema(
+    #    operation_description="List user budgets",
+    #    responses={200: BudgetSerializer(many=True)},
+    # )
     def list(self, request, *args, **kwargs):
         """
         List all budgets for the authenticated user.
@@ -35,11 +36,11 @@ class BudgetViewSet(viewsets.ModelViewSet):
         """
         return super().list(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_description="Create a new budget",
-        request_body=BudgetSerializer,
-        responses={201: BudgetSerializer},
-    )
+    # @swagger_auto_schema(
+    #    operation_description="Create a new budget",
+    #    request_body=BudgetSerializer,
+    #    responses={201: BudgetSerializer},
+    # )
     def create(self, request, *args, **kwargs):
         """
         Create a new budget for the authenticated user.
@@ -67,10 +68,10 @@ class BudgetViewSet(viewsets.ModelViewSet):
         )
         # return super().create(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_description="Retrieve a specific budget",
-        responses={200: BudgetSerializer},
-    )
+    # @swagger_auto_schema(
+    #    operation_description="Retrieve a specific budget",
+    #    responses={200: BudgetSerializer},
+    # )
     def retrieve(self, request, *args, **kwargs):
         """
         Retrieve a specific budget for the authenticated user.
@@ -86,11 +87,11 @@ class BudgetViewSet(viewsets.ModelViewSet):
         """
         return super().retrieve(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_description="Update a specific budget",
-        request_body=BudgetSerializer,
-        responses={200: BudgetSerializer},
-    )
+    # @swagger_auto_schema(
+    #    operation_description="Update a specific budget",
+    #    request_body=BudgetSerializer,
+    #    responses={200: BudgetSerializer},
+    # )
     def update(self, request, *args, **kwargs):
         """
         Update a specific budget for the authenticated user.
@@ -110,11 +111,11 @@ class BudgetViewSet(viewsets.ModelViewSet):
 
         return super().update(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_description="Partially update a specific budget",
-        request_body=BudgetSerializer,
-        responses={200: BudgetSerializer},
-    )
+    # @swagger_auto_schema(
+    #    operation_description="Partially update a specific budget",
+    #    request_body=BudgetSerializer,
+    #    responses={200: BudgetSerializer},
+    # )
     def partial_update(self, request, *args, **kwargs):
         """
         Partially update a specific budget for the authenticated user.
@@ -133,9 +134,9 @@ class BudgetViewSet(viewsets.ModelViewSet):
         """
         return super().partial_update(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_description="Delete a specific budget", responses={204: "No Content"}
-    )
+    # @swagger_auto_schema(
+    #    operation_description="Delete a specific budget", responses={204: "No Content"}
+    # )
     def destroy(self, request, *args, **kwargs):
         """
         Delete a specific budget for the authenticated user.

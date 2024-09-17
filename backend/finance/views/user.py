@@ -5,7 +5,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from ..serializers import RegisterSerializer, UserSerializer, UserProfileSerializer
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
-from drf_yasg.utils import swagger_auto_schema
+
+# from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 import logging
 
@@ -22,11 +23,11 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
 
-    @swagger_auto_schema(
-        operation_description="Register a new user",
-        request_body=RegisterSerializer,
-        responses={201: UserSerializer},
-    )
+    # @swagger_auto_schema(
+    #    operation_description="Register a new user",
+    #    request_body=RegisterSerializer,
+    #    responses={201: UserSerializer},
+    # )
     def post(self, request, *args, **kwargs):
         """
         Register a new user.
@@ -53,6 +54,7 @@ class LoginView(generics.GenericAPIView):
     permission_classes = (AllowAny,)
     serializer_class = UserSerializer
 
+    """
     @swagger_auto_schema(
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
@@ -66,6 +68,8 @@ class LoginView(generics.GenericAPIView):
             },
         )
     )
+    """
+
     # @ratelimit(key='ip', rate='10/m', method='POST', block=True)  # Allow 5 attempts per minute
     def post(self, request, *args, **kwargs):
         """
@@ -108,9 +112,9 @@ class ProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
 
-    @swagger_auto_schema(
-        operation_description="Retrieve user profile", responses={200: UserSerializer}
-    )
+    # @swagger_auto_schema(
+    #    operation_description="Retrieve user profile", responses={200: UserSerializer}
+    # )
     def get(self, request, *args, **kwargs):
         """
         Retrieve the authenticated user's profile.
@@ -129,11 +133,11 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
         # return super().retrieve(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_description="Update user profile",
-        request_body=UserSerializer,
-        responses={200: UserSerializer},
-    )
+    # @swagger_auto_schema(
+    #    operation_description="Update user profile",
+    #    request_body=UserSerializer,
+    #    responses={200: UserSerializer},
+    # )
     def put(self, request, *args, **kwargs):
         """
         Update the authenticated user's profile.

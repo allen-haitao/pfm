@@ -4,7 +4,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.decorators import action
 from ..models import Categories
 from ..serializers import CategorySerializer
-from drf_yasg.utils import swagger_auto_schema
+
+# from drf_yasg.utils import swagger_auto_schema
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -18,10 +19,10 @@ class CategoryViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Categories.objects.for_user(self.request.user).order_by("-create_time")
 
-    @swagger_auto_schema(
-        operation_description="List user categories",
-        responses={200: CategorySerializer(many=True)},
-    )
+    # @swagger_auto_schema(
+    #    operation_description="List user categories",
+    #    responses={200: CategorySerializer(many=True)},
+    # )
     def list(self, request, *args, **kwargs):
         """
         List all categories for the authenticated user.
@@ -34,11 +35,11 @@ class CategoryViewSet(viewsets.ModelViewSet):
         """
         return super().list(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_description="Create a new category",
-        request_body=CategorySerializer,
-        responses={201: CategorySerializer},
-    )
+    # @swagger_auto_schema(
+    #    operation_description="Create a new category",
+    #    request_body=CategorySerializer,
+    #    responses={201: CategorySerializer},
+    # )
     def create(self, request, *args, **kwargs):
         """
         Create a new category for the authenticated user.
@@ -62,10 +63,10 @@ class CategoryViewSet(viewsets.ModelViewSet):
         )
         # return super().create(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_description="Retrieve a specific category",
-        responses={200: CategorySerializer},
-    )
+    # @swagger_auto_schema(
+    #    operation_description="Retrieve a specific category",
+    #    responses={200: CategorySerializer},
+    # )
     def retrieve(self, request, *args, **kwargs):
         """
         Retrieve a specific category for the authenticated user.
@@ -80,11 +81,11 @@ class CategoryViewSet(viewsets.ModelViewSet):
         """
         return super().retrieve(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_description="Update a specific category",
-        request_body=CategorySerializer,
-        responses={200: CategorySerializer},
-    )
+    # @swagger_auto_schema(
+    #    operation_description="Update a specific category",
+    #    request_body=CategorySerializer,
+    #    responses={200: CategorySerializer},
+    # )
     def update(self, request, *args, **kwargs):
         """
         Update a specific category for the authenticated user.
@@ -101,11 +102,11 @@ class CategoryViewSet(viewsets.ModelViewSet):
         """
         return super().update(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_description="Partially update a specific category",
-        request_body=CategorySerializer,
-        responses={200: CategorySerializer},
-    )
+    # @swagger_auto_schema(
+    #    operation_description="Partially update a specific category",
+    #    request_body=CategorySerializer,
+    #    responses={200: CategorySerializer},
+    # )
     def partial_update(self, request, *args, **kwargs):
         """
         Partially update a specific category for the authenticated user.
@@ -122,10 +123,10 @@ class CategoryViewSet(viewsets.ModelViewSet):
         """
         return super().partial_update(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_description="Delete a specific category",
-        responses={204: "No Content"},
-    )
+    # @swagger_auto_schema(
+    #    operation_description="Delete a specific category",
+    #    responses={204: "No Content"},
+    # )
     def destroy(self, request, *args, **kwargs):
         """
         Delete a specific category for the authenticated user.

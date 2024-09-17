@@ -3,7 +3,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
-from drf_yasg.utils import swagger_auto_schema
+
+# from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from ..models import Transactions, Budgets
 from django.utils import timezone
@@ -27,114 +28,8 @@ class ReportView(APIView):
 
     permission_classes = [IsAuthenticated]
 
-    @swagger_auto_schema(
-        operation_description="Generate monthly income and expense trends and a pie chart report of the expense categories",
-        responses={
-            200: openapi.Response(
-                description="Report data",
-                schema=openapi.Schema(
-                    type=openapi.TYPE_OBJECT,
-                    properties={
-                        "income_trends": openapi.Schema(
-                            type=openapi.TYPE_ARRAY,
-                            items=openapi.Schema(
-                                type=openapi.TYPE_OBJECT,
-                                properties={
-                                    "year": openapi.Schema(type=openapi.TYPE_INTEGER),
-                                    "month": openapi.Schema(type=openapi.TYPE_INTEGER),
-                                    "total": openapi.Schema(
-                                        type=openapi.TYPE_STRING, format="decimal"
-                                    ),
-                                },
-                            ),
-                        ),
-                        "expense_trends": openapi.Schema(
-                            type=openapi.TYPE_ARRAY,
-                            items=openapi.Schema(
-                                type=openapi.TYPE_OBJECT,
-                                properties={
-                                    "year": openapi.Schema(type=openapi.TYPE_INTEGER),
-                                    "month": openapi.Schema(type=openapi.TYPE_INTEGER),
-                                    "category__name": openapi.Schema(
-                                        type=openapi.TYPE_STRING
-                                    ),
-                                    "total": openapi.Schema(
-                                        type=openapi.TYPE_STRING, format="decimal"
-                                    ),
-                                },
-                            ),
-                        ),
-                        "expense_categories": openapi.Schema(
-                            type=openapi.TYPE_ARRAY,
-                            items=openapi.Schema(
-                                type=openapi.TYPE_OBJECT,
-                                properties={
-                                    "category__name": openapi.Schema(
-                                        type=openapi.TYPE_STRING
-                                    ),
-                                    "total": openapi.Schema(
-                                        type=openapi.TYPE_STRING, format="decimal"
-                                    ),
-                                },
-                            ),
-                        ),
-                        "cash_flow": openapi.Schema(
-                            type=openapi.TYPE_ARRAY,
-                            items=openapi.Schema(
-                                type=openapi.TYPE_OBJECT,
-                                properties={
-                                    "year": openapi.Schema(type=openapi.TYPE_INTEGER),
-                                    "month": openapi.Schema(type=openapi.TYPE_INTEGER),
-                                    "income_total": openapi.Schema(
-                                        type=openapi.TYPE_STRING, format="decimal"
-                                    ),
-                                    "expense_total": openapi.Schema(
-                                        type=openapi.TYPE_STRING, format="decimal"
-                                    ),
-                                    "cash_flow": openapi.Schema(
-                                        type=openapi.TYPE_STRING, format="decimal"
-                                    ),
-                                },
-                            ),
-                        ),
-                        "budget_vs_actual": openapi.Schema(
-                            type=openapi.TYPE_ARRAY,
-                            items=openapi.Schema(
-                                type=openapi.TYPE_OBJECT,
-                                properties={
-                                    "year": openapi.Schema(type=openapi.TYPE_INTEGER),
-                                    "month": openapi.Schema(type=openapi.TYPE_INTEGER),
-                                    "category__name": openapi.Schema(
-                                        type=openapi.TYPE_STRING
-                                    ),
-                                    "budgeted_amount": openapi.Schema(
-                                        type=openapi.TYPE_STRING, format="decimal"
-                                    ),
-                                    "actual_amount": openapi.Schema(
-                                        type=openapi.TYPE_STRING, format="decimal"
-                                    ),
-                                },
-                            ),
-                        ),
-                        "year_end_summary": openapi.Schema(
-                            type=openapi.TYPE_OBJECT,
-                            properties={
-                                "total_income": openapi.Schema(
-                                    type=openapi.TYPE_STRING, format="decimal"
-                                ),
-                                "total_expenses": openapi.Schema(
-                                    type=openapi.TYPE_STRING, format="decimal"
-                                ),
-                                "net_savings": openapi.Schema(
-                                    type=openapi.TYPE_STRING, format="decimal"
-                                ),
-                            },
-                        ),
-                    },
-                ),
-            )
-        },
-    )
+    # "Generate monthly income and expense trends and a pie chart report of the expense categories",
+
     def get(self, request):
         """
         Get monthly income and expense trends, a pie chart report of the expense categories, and additional reports.

@@ -5,7 +5,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from ..serializers import TransactionSerializer, NotificationSerializer
 from ..models import Transactions, Notification
 from django.contrib.auth import get_user_model
-from drf_yasg.utils import swagger_auto_schema
+
+# from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.db.models import Sum, F, Func, Value
 from decimal import Decimal
@@ -20,11 +21,11 @@ class DashboardView(APIView):
 
     permission_classes = [IsAuthenticated]
 
-    @swagger_auto_schema(
-        responses={
-            200: openapi.Response("Dashboard data", TransactionSerializer(many=True))
-        }
-    )
+    # @swagger_auto_schema(
+    #    responses={
+    #        200: openapi.Response("Dashboard data", TransactionSerializer(many=True))
+    #    }
+    # )
     def get(self, request):
         """
         Get dashboard data including total income, expenses, savings, and recent transactions.

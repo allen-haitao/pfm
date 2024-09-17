@@ -7,7 +7,8 @@ from rest_framework.decorators import action
 from ..models import Transactions, Categories, Budgets, Notification
 from ..serializers import TransactionSerializer, CategorySerializer
 from decimal import Decimal
-from drf_yasg.utils import swagger_auto_schema
+
+# from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from PIL import Image
 from io import BytesIO
@@ -34,10 +35,10 @@ class TransactionViewSet(viewsets.ModelViewSet):
             "-occu_date"
         )
 
-    @swagger_auto_schema(
-        operation_description="List user transactions",
-        responses={200: TransactionSerializer(many=True)},
-    )
+    # @swagger_auto_schema(
+    #    operation_description="List user transactions",
+    #    responses={200: TransactionSerializer(many=True)},
+    # )
     def list(self, request, *args, **kwargs):
         """
         List all transactions for the authenticated user.
@@ -50,11 +51,11 @@ class TransactionViewSet(viewsets.ModelViewSet):
         """
         return super().list(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_description="Create a new transaction",
-        request_body=TransactionSerializer,
-        responses={201: TransactionSerializer},
-    )
+    # @swagger_auto_schema(
+    #    operation_description="Create a new transaction",
+    #    request_body=TransactionSerializer,
+    #    responses={201: TransactionSerializer},
+    # )
     def create(self, request, *args, **kwargs):
         """
         Create a new transaction for the authenticated user.
@@ -122,45 +123,45 @@ class TransactionViewSet(viewsets.ModelViewSet):
         )
         # return super().create(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        method="post",
-        operation_description="Process a receipt image, extract transaction details, and return them.",
-        manual_parameters=[
-            openapi.Parameter(
-                "image",
-                openapi.IN_FORM,
-                description="Upload a receipt image file",
-                type=openapi.TYPE_FILE,
-                required=True,
-            ),
-        ],
-        responses={
-            200: openapi.Response(
-                description="Extracted transaction data from the receipt",
-                examples={
-                    "application/json": {
-                        "data": {
-                            "items": [
-                                {
-                                    "name": "Item 1",
-                                    "category": "Category A",
-                                    "amount": 9.99,
-                                },
-                                {
-                                    "name": "Item 2",
-                                    "category": "Category B",
-                                    "amount": 5.99,
-                                },
-                            ],
-                            "total": 15.98,
-                        }
-                    }
-                },
-            ),
-            400: "Bad Request - No image uploaded",
-            500: "Internal Server Error",
-        },
-    )
+    # @swagger_auto_schema(
+    #    method="post",
+    #    operation_description="Process a receipt image, extract transaction details, and return them.",
+    #    manual_parameters=[
+    #        openapi.Parameter(
+    #            "image",
+    #            openapi.IN_FORM,
+    #            description="Upload a receipt image file",
+    #            type=openapi.TYPE_FILE,
+    #            required=True,
+    #        ),
+    #    ],
+    #    responses={
+    #        200: openapi.Response(
+    #            description="Extracted transaction data from the receipt",
+    #            examples={
+    #                "application/json": {
+    #                    "data": {
+    #                        "items": [
+    #                            {
+    #                                "name": "Item 1",
+    #                                "category": "Category A",
+    #                                "amount": 9.99,
+    #                            },
+    #                           {
+    #                                "name": "Item 2",
+    #                                "category": "Category B",
+    #                                "amount": 5.99,
+    #                            },
+    #                        ],
+    #                        "total": 15.98,
+    #                    }
+    #                }
+    #            },
+    #        ),
+    #        400: "Bad Request - No image uploaded",
+    #        500: "Internal Server Error",
+    #    },
+    # )
     @action(detail=False, methods=["post"], permission_classes=[IsAuthenticated])
     def process_receipt(self, request):
         """
@@ -203,10 +204,10 @@ class TransactionViewSet(viewsets.ModelViewSet):
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-    @swagger_auto_schema(
-        operation_description="Retrieve a specific transaction",
-        responses={200: TransactionSerializer},
-    )
+    # @swagger_auto_schema(
+    #    operation_description="Retrieve a specific transaction",
+    #    responses={200: TransactionSerializer},
+    # )
     def retrieve(self, request, *args, **kwargs):
         """
         Retrieve a specific transaction for the authenticated user.
@@ -224,11 +225,11 @@ class TransactionViewSet(viewsets.ModelViewSet):
         """
         return super().retrieve(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_description="Update a specific transaction",
-        request_body=TransactionSerializer,
-        responses={200: TransactionSerializer},
-    )
+    # @swagger_auto_schema(
+    #    operation_description="Update a specific transaction",
+    #    request_body=TransactionSerializer,
+    #    responses={200: TransactionSerializer},
+    # )
     def update(self, request, *args, **kwargs):
         """
         Update a specific transaction for the authenticated user.
@@ -251,11 +252,11 @@ class TransactionViewSet(viewsets.ModelViewSet):
         """
         return super().update(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_description="Partially update a specific transaction",
-        request_body=TransactionSerializer,
-        responses={200: TransactionSerializer},
-    )
+    # @swagger_auto_schema(
+    #    operation_description="Partially update a specific transaction",
+    #    request_body=TransactionSerializer,
+    #    responses={200: TransactionSerializer},
+    # )
     def partial_update(self, request, *args, **kwargs):
         """
         Partially update a specific transaction for the authenticated user.
@@ -278,10 +279,10 @@ class TransactionViewSet(viewsets.ModelViewSet):
         """
         return super().partial_update(request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_description="Delete a specific transaction",
-        responses={204: "No Content"},
-    )
+    # @swagger_auto_schema(
+    #    operation_description="Delete a specific transaction",
+    #    responses={204: "No Content"},
+    # )
     def destroy(self, request, *args, **kwargs):
         """
         Delete a specific transaction for the authenticated user.

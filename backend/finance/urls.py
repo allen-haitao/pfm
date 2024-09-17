@@ -13,8 +13,9 @@ from .views import (
 )
 from rest_framework import permissions, routers
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
+
+# from drf_yasg.views import get_schema_view
+# from drf_yasg import openapi
 from finance import views
 
 router = DefaultRouter()
@@ -22,6 +23,7 @@ router.register(r"transactions", TransactionViewSet, basename="transaction")
 router.register(r"budgets", BudgetViewSet, basename="budget")
 router.register(r"categories", CategoryViewSet, basename="category")
 
+"""
 schema_view = get_schema_view(
     openapi.Info(
         title="Personal Finance Manager API",
@@ -32,22 +34,22 @@ schema_view = get_schema_view(
     permission_classes=(permissions.AllowAny,),
     authentication_classes=(JWTAuthentication,),
 )
-
+"""
 
 urlpatterns = [
     path("register/", RegisterView.as_view(), name="register"),
     path("login/", LoginView.as_view(), name="login"),
     path("profile/", ProfileView.as_view(), name="profile"),
-    re_path(
-        "^swagger(?P<format>\.json|\.yaml)$",
-        schema_view.without_ui(cache_timeout=0),
-        name="schema-json",
-    ),
-    path(
-        "doc/",
-        schema_view.with_ui("swagger", cache_timeout=0),
-        name="schema-swagger-ui",
-    ),
+    # re_path(
+    #    "^swagger(?P<format>\.json|\.yaml)$",
+    #    schema_view.without_ui(cache_timeout=0),
+    #    name="schema-json",
+    # ),
+    # path(
+    #    "doc/",
+    #    schema_view.with_ui("swagger", cache_timeout=0),
+    #    name="schema-swagger-ui",
+    # ),
     path("dashboard/", DashboardView.as_view(), name="dashboard"),
     path("reports/", ReportView.as_view(), name="reports"),
     path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
