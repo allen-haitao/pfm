@@ -8,10 +8,12 @@ async-timeout==4.0.3
 attrs==24.2.0
 cachetools==5.5.0
 certifi==2024.7.4
+cffi==1.17.1
 charset-normalizer==3.3.2
 click==8.1.7
 coreapi==2.3.3
 coreschema==0.0.4
+cryptography==43.0.1
 distlib==0.3.8
 distro==1.9.0
 Django==4.2.14
@@ -52,6 +54,7 @@ platformdirs==4.2.2
 psycopg2-binary==2.9.9
 pyasn1==0.6.1
 pyasn1_modules==0.4.1
+pycparser==2.22
 pydantic==2.8.2
 pydantic_core==2.20.1
 Pygments==2.18.0
@@ -81,4 +84,3 @@ uritemplate==4.1.1
 urllib3==2.2.2
 virtualenv==20.26.3
 yarl==1.9.4
-setuptools==58.0.4
