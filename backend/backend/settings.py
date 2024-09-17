@@ -87,6 +87,9 @@ TEMPLATES = [
 WSGI_APPLICATION = "backend.wsgi.app"
 
 SITE_ID = 1
+GOOGLE_CLIENT_ID = (
+    "744737354297-gsjli5vd9kd0p3ogc3cmetbuffv70hk5.apps.googleusercontent.com"
+)
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
