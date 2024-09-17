@@ -39,11 +39,11 @@ jobs:
       #    python manage.py create_default_categories
       #    python manage.py create_demo_data
 
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v20
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: rA4wshfECimGSOXHwfJwQyoY
-          vercel-project-id: prj_JBsafA95C0WohJRSJemJKku7tvGh
-          working-directory: ./backend
-          vercel-args: "--prod"
+      #- name: Deploy to Vercel
+      #  uses: amondnet/vercel-action@v20
+      #  with:
+      #    vercel-token: ${{ secrets.VERCEL_TOKEN }}
+      #    vercel-org-id: rA4wshfECimGSOXHwfJwQyoY
+      #    vercel-project-id: prj_JBsafA95C0WohJRSJemJKku7tvGh
+      #    working-directory: ./backend
+      #    vercel-args: "--prod"
