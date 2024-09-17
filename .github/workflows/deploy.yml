@@ -43,7 +43,7 @@ jobs:
         uses: amondnet/vercel-action@v20
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: allens-projects-09e7ec98
+          vercel-org-id: rA4wshfECimGSOXHwfJwQyoY
           vercel-project-id: prj_JBsafA95C0WohJRSJemJKku7tvGh
           working-directory: ./backend
           vercel-args: "--prod"
