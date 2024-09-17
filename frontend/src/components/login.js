@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import api from "../services/api"
 import './Login.css';
@@ -75,8 +75,13 @@ const Login = ({ handleLogin }) => {
                 </div>
                 <button type="submit" className="login-button">Login</button>
             </form>
+            <div className="register">
+                <p>
+                    Don't have an account?
+                    <Link to="/register"> Register here</Link>
+                </p>
+            </div>
             <div className="google-login">
-                <h2>Or</h2>
                 <GoogleLogin
                     onSuccess={handleGoogleLoginSuccess}
                     onError={handleGoogleLoginFailure}

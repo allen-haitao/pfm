@@ -66,3 +66,17 @@
       padding: 10px;
     }
   }
+  .google-login {
+    display: flex;               /* Make the container a flexbox */
+    flex-direction: column;      /* Align items in a column */
+    align-items: center;         /* Center-align horizontally */
+    text-align: center;          /* Center-align text */
+}
+
+.google-login h2 {
+    margin-bottom: 10px;         /* Add space between heading and button */
+}
+
+.google-login button {
+    width: auto;                 /* Adjust button width */
+}
