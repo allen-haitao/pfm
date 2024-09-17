@@ -7,7 +7,7 @@ from ..models import Transactions, Notification
 from django.contrib.auth import get_user_model
 
 # from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
+# from drf_yasg import openapi
 from django.db.models import Sum, F, Func, Value
 from decimal import Decimal
 

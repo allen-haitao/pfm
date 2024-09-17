@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Sum
 
 # from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
+# from drf_yasg import openapi
 from ..models import Transactions, Budgets
 from django.utils import timezone
 from django.db.models import Sum, F, Func, Value

@@ -9,7 +9,7 @@ from ..serializers import TransactionSerializer, CategorySerializer
 from decimal import Decimal
 
 # from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
+# from drf_yasg import openapi
 from PIL import Image
 from io import BytesIO
 import logging
