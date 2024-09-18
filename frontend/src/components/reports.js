@@ -38,7 +38,7 @@ const Reports = () => {
     useEffect(() => {
         const fetchReport = async () => {
             try {
-                const response = await api.get('/reports/'); // No parameters in API call
+                const response = await api.get('/reports/');
                 console.log("Fetched Report Data:", response.data);
                 setReport(response.data);
             } catch (err) {

@@ -1,3 +1,10 @@
+"""
+File: models.py
+Author: Haitao Wang
+Date: 2024-09-18
+Description: The models of the pfm.
+"""
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import Q

@@ -1,3 +1,11 @@
+"""
+File: middleware.py
+Author: Haitao Wang
+Date: 2024-09-18
+Description: Middleware  for logging bad request
+"""
+
+
 class LogBadRequestMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response

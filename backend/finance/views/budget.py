@@ -1,3 +1,10 @@
+"""
+File: budget.py
+Author: Haitao Wang
+Date: 2024-09-18
+Description: Budget view
+"""
+
 from rest_framework import generics, viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated

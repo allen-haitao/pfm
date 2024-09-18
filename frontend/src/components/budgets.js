@@ -1,3 +1,10 @@
+/**
+ * @file budgets.js
+ * @description Budget module 
+ * @author Haitao Wang
+ * @date 2024-09-18
+ */
+
 import React, { useState, useEffect } from 'react';
 import api from '../services/api'; // Import the api module
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

@@ -78,7 +78,7 @@ const Profile = () => {
                         name="username"
                         value={userData.username}
                         onChange={handleInputChange}
-                        disabled // Disable username change if needed
+                        disabled
                     />
                 </div>
                 <div className="form-group">

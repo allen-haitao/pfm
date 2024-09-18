@@ -1,3 +1,10 @@
+/**
+ * @file App.js
+ * @description the main application  entrance
+ * @author Haitao Wang
+ * @date 2024-09-18
+ */
+
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';

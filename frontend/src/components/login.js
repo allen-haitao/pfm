@@ -1,3 +1,10 @@
+/**
+ * @file login.js
+ * @description Login mudule of the app
+ * @author Haitao Wang
+ * @date 2024-08-18
+ */
+
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
@@ -35,7 +42,7 @@ const Login = ({ handleLogin }) => {
             // Send the Google token to your backend for verification
             const serverResponse = await api.post('/google-login/', { token: googleToken });
 
-            // Assuming your backend returns access and refresh tokens
+            // returns access and refresh tokens
             handleLogin(serverResponse.data.access, serverResponse.data.refresh, serverResponse.data.username);
             navigate('/');
         } catch (err) {

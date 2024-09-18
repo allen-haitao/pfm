@@ -1,3 +1,10 @@
+"""
+File: dashboard.py
+Author: Haitao Wang
+Date: 2024-09-18
+Description: Dashboard view
+"""
+
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response

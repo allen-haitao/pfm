@@ -1,3 +1,10 @@
+/**
+ * @file api.js
+ * @description helper function for api call to the backend
+ * @author Haitao Wang
+ * @date 2024-08-18
+ */
+
 import axios from 'axios';
 
 const API_URL = `${process.env.REACT_APP_API_URL}`;

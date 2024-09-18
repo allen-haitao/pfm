@@ -1,5 +1,12 @@
+/**
+ * @file footer.js
+ * @description The footer of pfm
+ * @author Haitao Wang
+ * @date 2024-09-18
+ */
+
 import React from 'react';
-import './footer.css'; // Optional, for styling
+import './footer.css';
 
 const Footer = () => {
     const currentYear = new Date().getFullYear(); // Get the current year dynamically

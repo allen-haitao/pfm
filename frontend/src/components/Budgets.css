@@ -3,9 +3,9 @@
 .add-budget-form input[type="date"],
 .add-budget-form label {
     height: 30px; /* Ensure all elements have the same height */
-    padding: 5px 10px; /* Consistent padding */
-    font-size: 14px; /* Consistent font size */
-    box-sizing: border-box; /* Include padding and border in element's total width and height */
+    padding: 5px 10px; 
+    font-size: 14px;
+    box-sizing: border-box; 
 }
 
 .add-budget-form label {

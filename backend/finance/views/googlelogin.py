@@ -1,3 +1,10 @@
+"""
+File: googlelogin.py
+Author: Haitao Wang
+Date: 2024-09-18
+Description: Google account login handler
+"""
+
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from rest_framework.response import Response
@@ -22,7 +29,7 @@ def google_login(request):
         email = idinfo["email"]
         google_user_id = idinfo["sub"]
 
-        # Create or get a user in your system
+        # Create or get a user
         user, created = CustomUser.objects.get_or_create(
             email=email, defaults={"username": email}
         )

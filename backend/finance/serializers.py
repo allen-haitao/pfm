@@ -1,3 +1,10 @@
+"""
+File: serializers.py
+Author: Haitao Wang
+Date: 2024-09-18
+Description: serializer implement of the models
+"""
+
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import Transactions, Budgets, Categories, Notification
@@ -22,6 +29,15 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class RegisterSerializer(serializers.ModelSerializer):
+    """
+    Serializer for register .
+
+    Fields:
+        username (str): username of the user.
+        password (str): password of the user.
+        email (str): The email of user.
+    """
+
     class Meta:
         model = User
         fields = ["username", "email", "password"]
@@ -37,6 +53,16 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    """
+    Serializer for profile .
+
+    Fields:
+        username (str): username of the user.
+        email (str): The email of user.
+        first_name (str): first name of the user.
+        last_name (str): last name of the user.
+    """
+
     old_password = serializers.CharField(
         write_only=True, required=False, allow_blank=True
     )
@@ -56,6 +82,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         ]
         extra_kwargs = {"new_password": {"write_only": True, "required": False}}
 
+    # validate password
     def validate(self, attrs):
         user = self.instance
         old_password = attrs.get("old_password")
@@ -71,6 +98,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
         return attrs
 
+    # update the data
     def update(self, instance, validated_data):
         validated_data.pop("old_password", None)
         new_password = validated_data.pop("new_password", None)
@@ -86,6 +114,16 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    """
+    Serializer for category .
+
+    Fields:
+        id (int): unique id of the category.
+        name (str): The name of category.
+        category_type (str): income or expense.
+        user_id (int): the id of the user that owns the category, null for the predefine categories .
+    """
+
     class Meta:
         model = Categories
         fields = ["id", "name", "user_id", "category_type"]
@@ -93,6 +131,11 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class BudgetSerializer(serializers.ModelSerializer):
+    """
+    Serializer for budget .
+
+    """
+
     category = CategorySerializer(read_only=True)
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Categories.objects.all(), write_only=True, source="category"
@@ -114,6 +157,10 @@ class BudgetSerializer(serializers.ModelSerializer):
 
 
 class TransactionSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Transaction .
+    """
+
     category = CategorySerializer(read_only=True)
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Categories.objects.all(), write_only=True, source="category"
@@ -136,6 +183,11 @@ class TransactionSerializer(serializers.ModelSerializer):
 
 
 class NotificationSerializer(serializers.ModelSerializer):
+    """
+    Serializer for notification .
+
+    """
+
     class Meta:
         model = Notification
         fields = ["id", "user_id", "notify", "types", "create_time"]

@@ -1,3 +1,10 @@
+"""
+File: urls.py
+Author: Haitao Wang
+Date: 2024-09-18
+Description: The URL patterns 
+"""
+
 from django.urls import path, re_path, include
 from rest_framework.routers import DefaultRouter
 from .views import (

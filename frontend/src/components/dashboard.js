@@ -1,3 +1,10 @@
+/**
+ * @file dashboard.js
+ * @description Dashboard module of the pfm
+ * @author Haitao Wang
+ * @date 2024-09-18
+ */
+
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import './Dashboard.css';
