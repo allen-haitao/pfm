@@ -39,7 +39,7 @@ class Command(BaseCommand):
             {"name": "Salary", "category_type": "income"},
             {"name": "Investment Income", "category_type": "income"},
             {"name": "Rental Income", "category_type": "income"},
-            {"name": "IBusiness Income", "category_type": "income"},
+            {"name": "Business Income", "category_type": "income"},
             {"name": "Miscellaneous Income", "category_type": "income"},
         ]
 

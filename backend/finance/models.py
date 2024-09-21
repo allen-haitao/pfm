@@ -7,7 +7,7 @@ Description: The models of the pfm.
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.utils import timezone
 from datetime import timedelta
 
@@ -76,6 +76,9 @@ class Transactions(models.Model):
     notes = models.TextField()
     create_time = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"{self.user} - {self.types} - {self.amount}"
+
 
 # budget
 class Budgets(models.Model):
@@ -95,6 +98,29 @@ class Budgets(models.Model):
 
     def __str__(self):
         return f"{self.category.name} - {self.get_period_display()} {self.year}"
+
+    def save(self, *args, **kwargs):
+        # Calculate spent before saving the budget
+        self.spent = self.calculate_spent()
+        super().save(*args, **kwargs)
+
+    def calculate_spent(self):
+        # Get the base query for transactions
+        transactions = Transactions.objects.filter(
+            user=self.user, category=self.category, types="expense"
+        )
+
+        # Filter by the period type
+        if self.period_type == "monthly":
+            transactions = transactions.filter(
+                occu_date__year=self.year, occu_date__month=self.month
+            )
+        elif self.period_type == "yearly":
+            transactions = transactions.filter(occu_date__year=self.year)
+
+        # Calculate the total spent amount
+        total_spent = transactions.aggregate(Sum("amount"))["amount__sum"] or 0
+        return total_spent
 
 
 # notification
