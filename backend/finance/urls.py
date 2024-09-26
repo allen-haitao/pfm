@@ -26,9 +26,9 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from finance import views
 
 router = DefaultRouter()
-router.register(r"transactions", TransactionViewSet, basename="transaction")
-router.register(r"budgets", BudgetViewSet, basename="budget")
-router.register(r"categories", CategoryViewSet, basename="category")
+router.register(r"transactions", TransactionViewSet, basename="transactions")
+router.register(r"budgets", BudgetViewSet, basename="budgets")
+router.register(r"categories", CategoryViewSet, basename="categories")
 
 """
 schema_view = get_schema_view(
