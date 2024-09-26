@@ -24,9 +24,16 @@ from django.db.models import Sum, F, Func, Value
 from ..receipt import process_img
 import base64
 import calendar
-
+import uuid  # 用于生成唯一任务ID
+import boto3
+import json
 
 logger = logging.getLogger(__name__)
+
+# 初始化 AWS Lambda 和 DynamoDB 客户端
+lambda_client = boto3.client("lambda", region_name="us-east-1")
+dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
+table = dynamodb.Table("ReceiptTasks")
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
@@ -182,8 +189,8 @@ class TransactionViewSet(viewsets.ModelViewSet):
         - 200: Extracted transaction data from the receipt
         - 400: Bad Request if no image is uploaded
         - 500: Internal Server Error if something goes wrong
+        Process a receipt image, extract transaction details, and return a task ID.
         """
-        print("Process Receipt endpoint hit")
         parser_classes = [MultiPartParser]
         try:
             image = request.FILES.get("image")
@@ -192,7 +199,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
                     {"error": "No image uploaded."}, status=status.HTTP_400_BAD_REQUEST
                 )
 
-            if image.size > 5 * 1024 * 1024:  # Limit to 5MB
+            if image.size > 5 * 1024 * 1024:  # 限制大小为 5MB
                 return Response(
                     {"error": "Image size exceeds the allowed limit of 5MB."},
                     status=status.HTTP_400_BAD_REQUEST,
@@ -200,30 +207,72 @@ class TransactionViewSet(viewsets.ModelViewSet):
 
             try:
                 image_data = Image.open(image)
-                image_data.verify()  # Verify that it is, in fact, an image
+                image_data.verify()  # 验证图片文件是否有效
             except UnidentifiedImageError:
                 return Response(
                     {"error": "Uploaded file is not a valid image."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            # Convert the uploaded image to binary data
-            image_data = Image.open(
-                image
-            )  # Reopen since verify() will destroy the image data
-            # resize the image to reduce consumption of token
-            image_data.thumbnail((1024, 1024))
+            # 将上传的图像转换为二进制数据
+            image_data = Image.open(image)  # 重新打开，因为 verify() 会破坏图像数据
+            image_data.thumbnail((1024, 1024))  # 调整大小以减少数据量
             buffered = BytesIO()
             image_data.save(buffered, format="JPEG")
             image_binary = buffered.getvalue()
             image_base64 = base64.b64encode(image_binary).decode("utf-8")
 
-            # Call the OpenAI API with the image data
-            extracted_data = process_img(image_base64)
+            # 生成唯一任务ID
+            task_id = str(uuid.uuid4())
 
-            return Response({"data": extracted_data}, status=status.HTTP_200_OK)
+            # 将任务数据传递给 Lambda
+            lambda_payload = {
+                "task_id": task_id,
+                "image_data": image_base64,
+            }
+
+            response = lambda_client.invoke(
+                FunctionName="pfm_process_image",
+                InvocationType="Event",  # 异步调用
+                Payload=json.dumps(lambda_payload),
+            )
+
+            # 将任务状态存储在 DynamoDB 中
+            table.put_item(
+                Item={"task_id": task_id, "status": "submitted", "result": None}
+            )
+
+            return Response({"task_id": task_id}, status=status.HTTP_200_OK)
 
         except Exception as e:
+            logger.error(f"Error processing receipt: {e}")
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    @action(detail=True, methods=["get"], permission_classes=[IsAuthenticated])
+    def check_task_status(self, request, pk=None):
+        """
+        Check the status and result of a specific task.
+        """
+        try:
+            task_id = pk
+            response = table.get_item(Key={"task_id": task_id})
+            if "Item" not in response:
+                return Response(
+                    {"error": "Task not found."}, status=status.HTTP_404_NOT_FOUND
+                )
+
+            task_status = response["Item"]["status"]
+            task_result = response["Item"].get("result")
+
+            return Response(
+                {"task_id": task_id, "status": task_status, "result": task_result},
+                status=status.HTTP_200_OK,
+            )
+
+        except Exception as e:
+            logger.error(f"Error checking task status: {e}")
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

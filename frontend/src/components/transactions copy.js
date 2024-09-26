@@ -17,12 +17,7 @@ const Transactions = () => {
     const [image, setImage] = useState(null);
     const [extractedData, setExtractedData] = useState(null);
     const [summaryData, setSummaryData] = useState([]);
-    const [taskId, setTaskId] = useState(''); // 任务ID
-    const [taskStatus, setTaskStatus] = useState(''); // 任务状态
-    const [polling, setPolling] = useState(false); // 控制是否轮询
-    const [pollingProgress, setPollingProgress] = useState(0); // 轮询进度
 
-    // 初始化数据
     useEffect(() => {
         fetchTransactionsAndCategories();
     }, []);
@@ -49,12 +44,10 @@ const Transactions = () => {
         }
     };
 
-    // 处理图片上传
     const handleImageUpload = (e) => {
         setImage(e.target.files[0]);
     };
 
-    // 提交图片并启动轮询
     const handleImageSubmit = async () => {
         if (!image) {
             setError('Please upload a receipt or invoice image.');
@@ -71,81 +64,30 @@ const Transactions = () => {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            setTaskId(response.data.task_id); // 假设后端返回任务ID
-            setTaskStatus('submitted');
-            setPolling(true); // 开始轮询
+            setExtractedData(response.data);
             setLoading(false);
         } catch (err) {
             setError('Failed to process the image.');
             setLoading(false);
         }
     };
-
-    // 自动轮询任务状态
-    useEffect(() => {
-        let pollingInterval;
-        let pollingAttempts = 0;
-        const maxPollingAttempts = 10; // 最大轮询次数
-
-        if (polling) {
-            pollingInterval = setInterval(async () => {
-                pollingAttempts += 1;
-                setPollingProgress((pollingAttempts / maxPollingAttempts) * 100); // 更新进度条
-                try {
-                    const response = await api.get(`/api/check-task/${taskId}`);
-                    setTaskStatus(response.data.status);
-                    if (response.data.status === 'completed') {
-                        setExtractedData(response.data.result);
-                        clearInterval(pollingInterval); // 任务完成，停止轮询
-                        setPolling(false);
-                    } else if (pollingAttempts >= maxPollingAttempts) {
-                        alert('Polling attempts exceeded.');
-                        clearInterval(pollingInterval); // 达到最大轮询次数，停止轮询
-                        setPolling(false);
-                    }
-                } catch (err) {
-                    console.error('Failed to check task status.', err);
-                    clearInterval(pollingInterval); // 请求失败，停止轮询
-                    setPolling(false);
-                }
-            }, 10000); // 每隔 10 秒轮询一次任务状态
-        }
-
-        return () => clearInterval(pollingInterval); // 清理计时器
-    }, [polling, taskId]);
-
-    // 更新进度条组件
-    const ProgressBar = ({ progress }) => {
-        const filledBoxes = Math.round((progress / 100) * 10);
-        return (
-            <div className="progress-bar">
-                {Array(10).fill().map((_, index) => (
-                    <div
-                        key={index}
-                        className={`progress-box ${index < filledBoxes ? 'filled' : ''}`}
-                    ></div>
-                ))}
-            </div>
-        );
-    };
-
-    // 处理价格修改
     const handlePriceChange = (index, newPrice) => {
         const updatedData = { ...extractedData };
         updatedData.data[2][1][index][3][1] = newPrice; // Update the price in extractedData
+
+        // Recalculate the category subtotals
         recalculateCategorySubtotals(updatedData);
         setExtractedData(updatedData);
     };
-
-    // 处理类别修改
     const handleCategoryChange = (index, newCategory) => {
         const updatedData = { ...extractedData };
         updatedData.data[2][1][index][4][1] = newCategory; // Update the category in extractedData
+
+        // Recalculate the category subtotals
         recalculateCategorySubtotals(updatedData);
         setExtractedData(updatedData);
     };
 
-    // 重新计算类别小计
     const recalculateCategorySubtotals = (data) => {
         const newCategorySubtotals = data.data[2][1].reduce((acc, item) => {
             const category = item[4][1];
@@ -156,13 +98,36 @@ const Transactions = () => {
 
         data.data[3][1][5][1] = newCategorySubtotals;
 
-        // 更新总计和最终总计
+        // Update the total and final total as well
         const total = Object.values(newCategorySubtotals).reduce((acc, subtotal) => acc + subtotal, 0);
         data.data[3][1][0][1] = total;
         data.data[3][1][4][1] = total + data.data[3][1][2][1]; // Assuming final total = total + tax
     };
+    const handleSummaryChange = (index, field, value) => {
+        const updatedSummaryData = [...summaryData];
+        updatedSummaryData[index] = {
+            ...updatedSummaryData[index],
+            [field]: value,
+        };
+        setSummaryData(updatedSummaryData);
+    };
+    const autoAddTransaction = async ({ category_id, types, amount, notes, occu_date }) => {
+        try {
+            await api.post('/transactions/', {
+                category_id,
+                types,
+                amount,
+                notes,
+                occu_date,
+            });
+            setNewTransaction({ category_id: '', types: 'expense', amount: '', notes: '', occu_date: '' });
+            setShowAddForm(false);
+            fetchTransactionsAndCategories(); // Refresh the list after adding a transaction
+        } catch (err) {
+            setError('Failed to add transaction');
+        }
+    };
 
-    // 确认交易
     const handleConfirmTransaction = async () => {
         try {
             const finalSummaryData = Object.entries(extractedData.data[3][1][5][1]).map(([category, amount], index) => {
@@ -180,7 +145,7 @@ const Transactions = () => {
                 if (category) {
                     await autoAddTransaction({
                         category_id: category.id,
-                        types: 'expense', // 假设所有交易都是支出
+                        types: 'expense', // Assuming all are expenses; adjust if needed
                         amount: parseFloat(row.amount).toFixed(2),
                         notes: row.notes,
                         occu_date: row.occu_date,
@@ -196,35 +161,6 @@ const Transactions = () => {
         }
     };
 
-    // 自动添加交易
-    const autoAddTransaction = async ({ category_id, types, amount, notes, occu_date }) => {
-        try {
-            await api.post('/transactions/', {
-                category_id,
-                types,
-                amount,
-                notes,
-                occu_date,
-            });
-            setNewTransaction({ category_id: '', types: 'expense', amount: '', notes: '', occu_date: '' });
-            setShowAddForm(false);
-            fetchTransactionsAndCategories(); // 添加交易后刷新列表
-        } catch (err) {
-            setError('Failed to add transaction');
-        }
-    };
-
-    // 删除交易
-    const handleDeleteTransaction = async (id) => {
-        try {
-            await api.delete(`/transactions/${id}/`);
-            fetchTransactionsAndCategories();
-        } catch (err) {
-            setError('Failed to delete transaction');
-        }
-    };
-
-    // 添加交易
     const handleAddTransaction = async () => {
         try {
             await api.post('/transactions/', {
@@ -239,7 +175,15 @@ const Transactions = () => {
         }
     };
 
-    // 加载状态
+    const handleDeleteTransaction = async (id) => {
+        try {
+            await api.delete(`/transactions/${id}/`);
+            fetchTransactionsAndCategories();
+        } catch (err) {
+            setError('Failed to delete transaction');
+        }
+    };
+
     if (loading) {
         return (
             <div className="loading-container">
@@ -248,7 +192,6 @@ const Transactions = () => {
         );
     }
 
-    // 错误状态
     if (error) {
         return <p className="error">{error}</p>;
     }
@@ -313,8 +256,6 @@ const Transactions = () => {
                     <h2>Upload Receipt <FontAwesomeIcon icon={faImage} /></h2>
                     <input type="file" accept="image/*" onChange={handleImageUpload} />
                     <button onClick={handleImageSubmit}><FontAwesomeIcon icon={faSave} /> Process Image</button>
-
-                    {polling && <ProgressBar progress={pollingProgress} />} {/* 进度条显示 */}
 
                     {extractedData && (
                         <div className="extracted-data">
@@ -428,4 +369,4 @@ const Transactions = () => {
     );
 };
 
-export default Transactions;
+export default Transactions;               
