@@ -78,59 +78,76 @@ class TimeoutOpenAI(openai.OpenAI):
 
 def process_img(img):
     """
-    Function: Analye the receipt image data and categorize the items to transactions
+    Function: Analyze the receipt image data and categorize the items to transactions.
 
     Args:
         img : Base64 encoded receipt image data
-
     """
+    try:
+        # Define messages for the chat
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{img}"},
+                    },
+                    {
+                        "type": "text",
+                        "text": "Your goal is to extract structured information from the provided receipt and categorize the items into the categories:\
+                        'Food', 'Utilities', 'Fuel', 'Clothing', 'Entertainment','Beauty Products','Insurance','Education','Gifts','Miscellaneous', 'Healthcare'.",
+                    },
+                ],
+            }
+        ]
 
-    # Define messages for the chat
-    messages = [
-        {
-            "role": "user",
-            "content": [
-                {
-                    "type": "image_url",
-                    "image_url": {"url": f"data:image/jpeg;base64,{img}"},
-                },
-                {
-                    "type": "text",
-                    "text": "Your goal is to extract structured information from the provided receipt, and categorize the item to the categories:\
-                'Food', 'Utilities', 'Fuel', 'Clothing', 'Entertainment','Beauty Products','Insurance','Education','Gifts','Miscellaneous', 'Healthcare'.",
-                },
-            ],
-        }
-    ]
+        # Initialize the Instructor client with OpenAI
+        openai_client = TimeoutOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        client = instructor.from_openai(
+            client=openai_client,
+            mode=instructor.Mode.TOOLS,
+        )
 
-    # Initialize the Instructor client with OpenAI
-    openai_client = TimeoutOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        # Call the OpenAI API using the Instructor class
+        response = client.chat.completions.create(
+            model="gpt-4o", response_model=Invoice, messages=messages
+        )
 
-    client = instructor.from_openai(
-        client=openai_client,
-        mode=instructor.Mode.TOOLS,
-    )
+        if response is None:
+            raise ValueError("Received no response from the OpenAI API")
 
-    # Call the OpenAI API using the Instructor class
-    response = client.chat.completions.create(
-        model="gpt-4o", response_model=Invoice, messages=messages
-    )
-    # print(response)
+        # Extract the structured data from the response
+        invoice_data = response
+        print(f"Received response: {invoice_data}")
 
-    # Extract the structured data from the response
-    invoice_data = response
-    print(invoice_data)
+        # Validate that all required fields are present
+        if not invoice_data.product or not invoice_data.total_bill:
+            raise ValueError("Incomplete data received in the response")
 
-    # Calculate subtotals for each category
-    category_subtotals = {}
-    for product in invoice_data.product:
-        category = product.category
-        if category in category_subtotals:
-            category_subtotals[category] += product.product_total_price
-        else:
-            category_subtotals[category] = product.product_total_price
+        # Calculate subtotals for each category
+        category_subtotals = {}
+        for product in invoice_data.product:
+            category = product.category
+            if category in category_subtotals:
+                category_subtotals[category] += product.product_total_price
+            else:
+                category_subtotals[category] = product.product_total_price
 
-    # Update the TotalBill object with category subtotals
-    invoice_data.total_bill.category_subtotals = category_subtotals
+        # Update the TotalBill object with category subtotals
+        invoice_data.total_bill.category_subtotals = category_subtotals
 
-    return invoice_data
+        return invoice_data
+
+    except httpx.TimeoutException:
+        print("Request timed out. Please try again with a larger timeout.")
+        return None
+    except httpx.RequestError as e:
+        print(f"An error occurred while requesting data: {e}")
+        return None
+    except ValueError as ve:
+        print(f"Data error: {ve}")
+        return None
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        return None
