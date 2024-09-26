@@ -132,15 +132,7 @@ def process_img(img):
 
         return invoice_data
 
-    except httpx.TimeoutException:
-        print("Request timed out. Please try again with a larger timeout.")
-        return None
-    except httpx.RequestError as e:
-        print(f"An error occurred while requesting data: {e}")
-        return None
-    except ValueError as ve:
-        print(f"Data error: {ve}")
-        return None
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        print("Request timed out.")
+        raise e
         return None
