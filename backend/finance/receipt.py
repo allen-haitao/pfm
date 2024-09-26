@@ -3,14 +3,13 @@ File: receipt.py
 Author: Haitao Wang
 Date: 2024-09-18
 Description: Integration of GPT-4o model for recognizing supermarket shopping tickets, classification and extraction of expenses
+the process is moving to AWS Lamda, here only process the result
 """
 
 import os
 from typing import List, Dict
 from pydantic import BaseModel, Field
-import openai
-import instructor
-import httpx
+import ast
 
 
 # the  data models
@@ -68,71 +67,11 @@ class Invoice(BaseModel):
     )
 
 
-def process_img(img):
-    """
-    Function: Analyze the receipt image data and categorize the items to transactions.
+def process_result(resultstr):
+    valid_data = resultstr.replace('\\"', '"')[1:-1]
 
-    Args:
-        img : Base64 encoded receipt image data
-    """
-    try:
-        # Define messages for the chat
-        messages = [
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "image_url",
-                        "image_url": {"url": f"data:image/jpeg;base64,{img}"},
-                    },
-                    {
-                        "type": "text",
-                        "text": "Your goal is to extract structured information from the provided receipt and categorize the items into the categories:\
-                        'Food', 'Utilities', 'Fuel', 'Clothing', 'Entertainment','Beauty Products','Insurance','Education','Gifts','Miscellaneous', 'Healthcare'.",
-                    },
-                ],
-            }
-        ]
+    invoice_dict = ast.literal_eval(valid_data)
 
-        openai.DEFAULT_TIMEOUT = 180
-        # Initialize the Instructor client with OpenAI
-        openai_client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        client = instructor.from_openai(
-            client=openai_client,
-            mode=instructor.Mode.TOOLS,
-        )
+    invoice_obj = Invoice(**invoice_dict)
 
-        # Call the OpenAI API using the Instructor class
-        response = client.chat.completions.create(
-            model="gpt-4o", response_model=Invoice, messages=messages
-        )
-
-        if response is None:
-            raise ValueError("Received no response from the OpenAI API")
-
-        # Extract the structured data from the response
-        invoice_data = response
-        print(f"Received response: {invoice_data}")
-
-        # Validate that all required fields are present
-        if not invoice_data.product or not invoice_data.total_bill:
-            raise ValueError("Incomplete data received in the response")
-
-        # Calculate subtotals for each category
-        category_subtotals = {}
-        for product in invoice_data.product:
-            category = product.category
-            if category in category_subtotals:
-                category_subtotals[category] += product.product_total_price
-            else:
-                category_subtotals[category] = product.product_total_price
-
-        # Update the TotalBill object with category subtotals
-        invoice_data.total_bill.category_subtotals = category_subtotals
-
-        return invoice_data
-
-    except Exception as e:
-        print("Request timed out.")
-        raise e
-        return None
+    return invoice_obj

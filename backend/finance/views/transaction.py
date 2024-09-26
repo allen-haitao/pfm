@@ -21,7 +21,7 @@ from PIL import Image, UnidentifiedImageError
 from io import BytesIO
 import logging
 from django.db.models import Sum, F, Func, Value
-from ..receipt import process_img
+from ..receipt import process_result
 import base64
 import calendar
 import uuid  # 用于生成唯一任务ID
@@ -250,6 +250,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+    # check the image process progress, and return result
     @action(detail=True, methods=["get"], permission_classes=[IsAuthenticated])
     def check_task_status(self, request, pk=None):
         """
@@ -266,6 +267,8 @@ class TransactionViewSet(viewsets.ModelViewSet):
 
             task_status = response["Item"]["status"]
             task_result = response["Item"].get("result")
+
+            process_result(task_result)
 
             return Response(
                 {"task_id": task_id, "status": task_status, "result": task_result},
