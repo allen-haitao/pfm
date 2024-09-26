@@ -81,7 +81,6 @@ tqdm==4.66.5
 typer==0.12.4
 typing_extensions==4.12.2
 uritemplate==4.1.1
-urllib3==2.2.2
 virtualenv==20.26.3
 yarl==1.9.4
 boto3==1.34.158
