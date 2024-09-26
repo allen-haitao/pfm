@@ -232,7 +232,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
             }
 
             response = lambda_client.invoke(
-                FunctionName="pfm_process_image",
+                FunctionName="pfm-ProcessReceiptFunction-SPRh84ot6ujL",
                 InvocationType="Event",  # 异步调用
                 Payload=json.dumps(lambda_payload),
             )
