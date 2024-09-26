@@ -253,6 +253,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["get"], permission_classes=[IsAuthenticated])
     def check_task_status(self, request, pk=None):
         """
+        Function:
         Check the status and result of a specific task.
         """
         try:

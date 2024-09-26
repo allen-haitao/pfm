@@ -92,7 +92,7 @@ const Transactions = () => {
                 pollingAttempts += 1;
                 setPollingProgress((pollingAttempts / maxPollingAttempts) * 100); // 更新进度条
                 try {
-                    const response = await api.get(`/api/check-task/${taskId}`);
+                    const response = await api.get(`/transactions/check_task_status/${taskId}`);
                     setTaskStatus(response.data.status);
                     if (response.data.status === 'completed') {
                         setExtractedData(response.data.result);
