@@ -195,7 +195,14 @@ const Transactions = () => {
             setError('Failed to save the transactions.');
         }
     };
-
+    const handleSummaryChange = (index, field, value) => {
+        const updatedSummaryData = [...summaryData];
+        updatedSummaryData[index] = {
+            ...updatedSummaryData[index],
+            [field]: value,
+        };
+        setSummaryData(updatedSummaryData);
+    };
     // 自动添加交易
     const autoAddTransaction = async ({ category_id, types, amount, notes, occu_date }) => {
         try {
