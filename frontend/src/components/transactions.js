@@ -20,7 +20,6 @@ const Transactions = () => {
     const [taskId, setTaskId] = useState(''); // 任务ID
     const [taskStatus, setTaskStatus] = useState(''); // 任务状态
     const [polling, setPolling] = useState(false); // 控制是否轮询
-    const [pollingProgress, setPollingProgress] = useState(0); // 轮询进度
 
     // 初始化数据
     useEffect(() => {
@@ -65,7 +64,7 @@ const Transactions = () => {
         formData.append('image', image);
 
         try {
-            setLoading(true);
+            setLoading(true); // 启动loading状态
             const response = await api.post('/transactions/process_receipt/', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -74,10 +73,9 @@ const Transactions = () => {
             setTaskId(response.data.task_id); // 假设后端返回任务ID
             setTaskStatus('submitted');
             setPolling(true); // 开始轮询
-            setLoading(false);
         } catch (err) {
             setError('Failed to process the image.');
-            setLoading(false);
+            setLoading(false); // 失败时取消loading状态
         }
     };
 
@@ -90,7 +88,6 @@ const Transactions = () => {
         if (polling) {
             pollingInterval = setInterval(async () => {
                 pollingAttempts += 1;
-                setPollingProgress((pollingAttempts / maxPollingAttempts) * 100); // 更新进度条
                 try {
                     const response = await api.get(`/transactions/${taskId}/check_task_status/`);
                     setTaskStatus(response.data.status);
@@ -98,36 +95,24 @@ const Transactions = () => {
                         setExtractedData(response.data.result);
                         clearInterval(pollingInterval); // 任务完成，停止轮询
                         setPolling(false);
+                        setLoading(false); // 任务完成时取消loading状态
                     } else if (pollingAttempts >= maxPollingAttempts) {
                         alert('Polling attempts exceeded.');
                         clearInterval(pollingInterval); // 达到最大轮询次数，停止轮询
                         setPolling(false);
+                        setLoading(false); // 取消loading状态
                     }
                 } catch (err) {
                     console.error('Failed to check task status.', err);
                     clearInterval(pollingInterval); // 请求失败，停止轮询
                     setPolling(false);
+                    setLoading(false); // 取消loading状态
                 }
             }, 10000); // 每隔 10 秒轮询一次任务状态
         }
 
         return () => clearInterval(pollingInterval); // 清理计时器
     }, [polling, taskId]);
-
-    // 更新进度条组件
-    const ProgressBar = ({ progress }) => {
-        const filledBoxes = Math.round((progress / 100) * 10);
-        return (
-            <div className="progress-bar">
-                {Array(10).fill().map((_, index) => (
-                    <div
-                        key={index}
-                        className={`progress-box ${index < filledBoxes ? 'filled' : ''}`}
-                    ></div>
-                ))}
-            </div>
-        );
-    };
 
     // 处理价格修改
     const handlePriceChange = (index, newPrice) => {
@@ -196,6 +181,14 @@ const Transactions = () => {
         }
     };
 
+    const handleSummaryChange = (index, field, value) => {
+        const updatedSummaryData = [...summaryData];
+        updatedSummaryData[index] = {
+            ...updatedSummaryData[index],
+            [field]: value,
+        };
+        setSummaryData(updatedSummaryData);
+    };
     // 自动添加交易
     const autoAddTransaction = async ({ category_id, types, amount, notes, occu_date }) => {
         try {
@@ -313,8 +306,6 @@ const Transactions = () => {
                     <h2>Upload Receipt <FontAwesomeIcon icon={faImage} /></h2>
                     <input type="file" accept="image/*" onChange={handleImageUpload} />
                     <button onClick={handleImageSubmit}><FontAwesomeIcon icon={faSave} /> Process Image</button>
-
-                    {polling && <ProgressBar progress={pollingProgress} />} {/* 进度条显示 */}
 
                     {extractedData && (
                         <div className="extracted-data">
