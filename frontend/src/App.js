@@ -23,7 +23,7 @@ import './App.css';
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('access_token'));
   const [username, setUsername] = useState(localStorage.getItem('username') || '');
-
+  document.title = 'PFM';
   const handleLogin = (accessToken, refreshToken, username) => {
     localStorage.setItem('access_token', accessToken);
     localStorage.setItem('refresh_token', refreshToken);

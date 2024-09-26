@@ -17,7 +17,7 @@ from decimal import Decimal
 
 # from drf_yasg.utils import swagger_auto_schema
 # from drf_yasg import openapi
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 from io import BytesIO
 import logging
 from django.db.models import Sum, F, Func, Value
@@ -192,8 +192,25 @@ class TransactionViewSet(viewsets.ModelViewSet):
                     {"error": "No image uploaded."}, status=status.HTTP_400_BAD_REQUEST
                 )
 
+            if image.size > 5 * 1024 * 1024:  # Limit to 5MB
+                return Response(
+                    {"error": "Image size exceeds the allowed limit of 5MB."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            try:
+                image_data = Image.open(image)
+                image_data.verify()  # Verify that it is, in fact, an image
+            except UnidentifiedImageError:
+                return Response(
+                    {"error": "Uploaded file is not a valid image."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
             # Convert the uploaded image to binary data
-            image_data = Image.open(image)
+            image_data = Image.open(
+                image
+            )  # Reopen since verify() will destroy the image data
             # resize the image to reduce consumption of token
             image_data.thumbnail((1024, 1024))
             buffered = BytesIO()
