@@ -94,11 +94,9 @@ def process_img(img):
             }
         ]
 
-        httpx_client = httpx.Client(timeout=httpx.Timeout(60.0))  # 60-second timeout
+        # httpx_client = httpx.Client(timeout=httpx.Timeout(60.0))  # 60-second timeout
         # Initialize the Instructor client with OpenAI
-        openai_client = openai.OpenAI(
-            api_key=os.getenv("OPENAI_API_KEY"), client=httpx_client
-        )
+        openai_client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         client = instructor.from_openai(
             client=openai_client,
             mode=instructor.Mode.TOOLS,
