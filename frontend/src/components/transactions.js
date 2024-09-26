@@ -85,7 +85,7 @@ const Transactions = () => {
     useEffect(() => {
         let pollingInterval;
         let pollingAttempts = 0;
-        const maxPollingAttempts = 10; // 最大轮询次数
+        const maxPollingAttempts = 30; // 最大轮询次数
 
         if (polling) {
             pollingInterval = setInterval(async () => {
