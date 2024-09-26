@@ -68,14 +68,6 @@ class Invoice(BaseModel):
     )
 
 
-# Set up the OpenAI client with a custom timeout
-class TimeoutOpenAI(openai.OpenAI):
-    def request(self, *args, **kwargs):
-        if "timeout" not in kwargs:
-            kwargs["timeout"] = 60.0  # Set timeout to 60 seconds
-        return super().request(*args, **kwargs)
-
-
 def process_img(img):
     """
     Function: Analyze the receipt image data and categorize the items to transactions.
@@ -102,8 +94,11 @@ def process_img(img):
             }
         ]
 
+        httpx_client = httpx.Client(timeout=httpx.Timeout(60.0))  # 60-second timeout
         # Initialize the Instructor client with OpenAI
-        openai_client = TimeoutOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        openai_client = openai.OpenAI(
+            api_key=os.getenv("OPENAI_API_KEY"), client=httpx_client
+        )
         client = instructor.from_openai(
             client=openai_client,
             mode=instructor.Mode.TOOLS,
