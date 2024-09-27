@@ -68,10 +68,5 @@ class Invoice(BaseModel):
 
 
 def process_result(resultstr):
-    valid_data = resultstr.replace('\\"', '"')[1:-1]
-
-    invoice_dict = ast.literal_eval(valid_data)
-
-    invoice_obj = Invoice(**invoice_dict)
-
-    return invoice_obj
+    invoice = Invoice(**resultstr)
+    return invoice
