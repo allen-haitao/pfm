@@ -67,6 +67,21 @@ class Invoice(BaseModel):
     )
 
 
+def convert_to_floats(data):
+    """
+    递归地将数据中的 Decimal 类型转换为 float 类型
+    """
+    if isinstance(data, list):
+        return [convert_to_floats(item) for item in data]
+    elif isinstance(data, dict):
+        return {key: convert_to_floats(value) for key, value in data.items()}
+    elif isinstance(data, Decimal):
+        return float(data)  # 将 Decimal 转换为 float
+    else:
+        return data
+
+
 def process_result(resultstr):
-    invoice = Invoice(**resultstr)
+    invoice_data = convert_to_floats(resultstr)
+    invoice = Invoice(**invoice_data)
     return invoice
