@@ -83,7 +83,7 @@ const Transactions = () => {
     useEffect(() => {
         let pollingInterval;
         let pollingAttempts = 0;
-        const maxPollingAttempts = 30; // 最大轮询次数
+        const maxPollingAttempts = 100; // 最大轮询次数
 
         if (polling) {
             pollingInterval = setInterval(async () => {
@@ -108,7 +108,7 @@ const Transactions = () => {
                     setPolling(false);
                     setLoading(false); // 取消loading状态
                 }
-            }, 10000); // 每隔 10 秒轮询一次任务状态
+            }, 3000); // 每隔 3 秒轮询一次任务状态
         }
 
         return () => clearInterval(pollingInterval); // 清理计时器
@@ -117,7 +117,7 @@ const Transactions = () => {
     // 处理价格修改
     const handlePriceChange = (index, newPrice) => {
         const updatedData = { ...extractedData };
-        updatedData.data[2][1][index][3][1] = newPrice; // Update the price in extractedData
+        updatedData.product[index].product_total_price = newPrice; // 更新产品价格
         recalculateCategorySubtotals(updatedData);
         setExtractedData(updatedData);
     };
@@ -125,32 +125,32 @@ const Transactions = () => {
     // 处理类别修改
     const handleCategoryChange = (index, newCategory) => {
         const updatedData = { ...extractedData };
-        updatedData.data[2][1][index][4][1] = newCategory; // Update the category in extractedData
+        updatedData.product[index].category = newCategory; // 更新类别
         recalculateCategorySubtotals(updatedData);
         setExtractedData(updatedData);
     };
 
     // 重新计算类别小计
     const recalculateCategorySubtotals = (data) => {
-        const newCategorySubtotals = data.data[2][1].reduce((acc, item) => {
-            const category = item[4][1];
-            const amount = item[3][1];
+        const newCategorySubtotals = data.product.reduce((acc, item) => {
+            const category = item.category;
+            const amount = item.product_total_price;
             acc[category] = (acc[category] || 0) + amount;
             return acc;
         }, {});
 
-        data.data[3][1][5][1] = newCategorySubtotals;
+        data.total_bill.category_subtotals = newCategorySubtotals;
 
         // 更新总计和最终总计
         const total = Object.values(newCategorySubtotals).reduce((acc, subtotal) => acc + subtotal, 0);
-        data.data[3][1][0][1] = total;
-        data.data[3][1][4][1] = total + data.data[3][1][2][1]; // Assuming final total = total + tax
+        data.total_bill.total = total;
+        data.total_bill.final_total = total + data.total_bill.tax_amount; // Assuming final total = total + tax
     };
 
     // 确认交易
     const handleConfirmTransaction = async () => {
         try {
-            const finalSummaryData = Object.entries(extractedData.data[3][1][5][1]).map(([category, amount], index) => {
+            const finalSummaryData = Object.entries(extractedData.total_bill.category_subtotals).map(([category, amount], index) => {
                 const existingData = summaryData[index] || {};
                 return {
                     category,
@@ -320,33 +320,30 @@ const Transactions = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {extractedData.data[2][1].map((item, index) => {
-                                        const product = item.reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
-                                        return (
-                                            <tr key={index}>
-                                                <td>{product.product_description}</td>
-                                                <td>
-                                                    <input
-                                                        type="number"
-                                                        value={product.product_total_price.toFixed(2)}
-                                                        onChange={(e) => handlePriceChange(index, parseFloat(e.target.value))}
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <select
-                                                        value={product.category}
-                                                        onChange={(e) => handleCategoryChange(index, e.target.value)}
-                                                    >
-                                                        {categories.map((category) => (
-                                                            <option key={category.id} value={category.name}>
-                                                                {category.name}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
+                                    {extractedData.product.map((item, index) => (
+                                        <tr key={index}>
+                                            <td>{item.product_description}</td>
+                                            <td>
+                                                <input
+                                                    type="number"
+                                                    value={item.product_total_price.toFixed(2)}
+                                                    onChange={(e) => handlePriceChange(index, parseFloat(e.target.value))}
+                                                />
+                                            </td>
+                                            <td>
+                                                <select
+                                                    value={item.category}
+                                                    onChange={(e) => handleCategoryChange(index, e.target.value)}
+                                                >
+                                                    {categories.map((category) => (
+                                                        <option key={category.id} value={category.name}>
+                                                            {category.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    ))}
                                 </tbody>
                             </table>
 
@@ -362,20 +359,24 @@ const Transactions = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {Object.entries(extractedData.data[3][1][5][1]).map(([category, amount], index) => (
+                                        {Object.entries(extractedData.total_bill.category_subtotals).map(([category, amount], index) => (
                                             <tr key={index}>
                                                 <td>{category}</td>
                                                 <td>${amount.toFixed(2)}</td>
-                                                <td> <input
-                                                    type="date"
-                                                    defaultValue={summaryData[index]?.occu_date || new Date().toISOString().split('T')[0]}
-                                                    onChange={(e) => handleSummaryChange(index, 'occu_date', e.target.value)}
-                                                /></td>
-                                                <td><input
-                                                    type="string"
-                                                    defaultValue={summaryData[index]?.notes || "Add by receipt"}
-                                                    onChange={(e) => handleSummaryChange(index, 'notes', e.target.value)}
-                                                /></td>
+                                                <td>
+                                                    <input
+                                                        type="date"
+                                                        defaultValue={summaryData[index]?.occu_date || new Date().toISOString().split('T')[0]}
+                                                        onChange={(e) => handleSummaryChange(index, 'occu_date', e.target.value)}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <input
+                                                        type="text"
+                                                        defaultValue={summaryData[index]?.notes || "Add by receipt"}
+                                                        onChange={(e) => handleSummaryChange(index, 'notes', e.target.value)}
+                                                    />
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>
