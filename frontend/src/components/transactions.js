@@ -17,11 +17,11 @@ const Transactions = () => {
     const [image, setImage] = useState(null);
     const [extractedData, setExtractedData] = useState(null);
     const [summaryData, setSummaryData] = useState([]);
-    const [taskId, setTaskId] = useState(''); // 任务ID
-    const [taskStatus, setTaskStatus] = useState(''); // 任务状态
-    const [polling, setPolling] = useState(false); // 控制是否轮询
+    const [taskId, setTaskId] = useState(''); // task_id
+    const [taskStatus, setTaskStatus] = useState(''); // task status
+    const [polling, setPolling] = useState(false); // check ststus
 
-    // 初始化数据
+    // init data
     useEffect(() => {
         fetchTransactionsAndCategories();
     }, []);
@@ -48,12 +48,12 @@ const Transactions = () => {
         }
     };
 
-    // 处理图片上传
+    // upload image
     const handleImageUpload = (e) => {
         setImage(e.target.files[0]);
     };
 
-    // 提交图片并启动轮询
+    // submit task and begin check the task status
     const handleImageSubmit = async () => {
         if (!image) {
             setError('Please upload a receipt or invoice image.');
@@ -64,26 +64,26 @@ const Transactions = () => {
         formData.append('image', image);
 
         try {
-            setLoading(true); // 启动loading状态
+            setLoading(true); // loading
             const response = await api.post('/transactions/process_receipt/', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            setTaskId(response.data.task_id); // 假设后端返回任务ID
+            setTaskId(response.data.task_id); // task id
             setTaskStatus('submitted');
-            setPolling(true); // 开始轮询
+            setPolling(true); // check
         } catch (err) {
             setError('Failed to process the image.');
-            setLoading(false); // 失败时取消loading状态
+            setLoading(false);
         }
     };
 
-    // 自动轮询任务状态
+    // check task status
     useEffect(() => {
         let pollingInterval;
         let pollingAttempts = 0;
-        const maxPollingAttempts = 100; // 最大轮询次数
+        const maxPollingAttempts = 100;
 
         if (polling) {
             pollingInterval = setInterval(async () => {
@@ -93,44 +93,44 @@ const Transactions = () => {
                     setTaskStatus(response.data.status);
                     if (response.data.status === 'completed') {
                         setExtractedData(response.data.result);
-                        clearInterval(pollingInterval); // 任务完成，停止轮询
+                        clearInterval(pollingInterval);
                         setPolling(false);
-                        setLoading(false); // 任务完成时取消loading状态
+                        setLoading(false);
                     } else if (pollingAttempts >= maxPollingAttempts) {
                         alert('Polling attempts exceeded.');
-                        clearInterval(pollingInterval); // 达到最大轮询次数，停止轮询
+                        clearInterval(pollingInterval);
                         setPolling(false);
-                        setLoading(false); // 取消loading状态
+                        setLoading(false);
                     }
                 } catch (err) {
                     console.error('Failed to check task status.', err);
-                    clearInterval(pollingInterval); // 请求失败，停止轮询
+                    clearInterval(pollingInterval);
                     setPolling(false);
-                    setLoading(false); // 取消loading状态
+                    setLoading(false);
                 }
-            }, 3000); // 每隔 3 秒轮询一次任务状态
+            }, 3000); // check task status each 3 seconds
         }
 
-        return () => clearInterval(pollingInterval); // 清理计时器
+        return () => clearInterval(pollingInterval); // clear timer
     }, [polling, taskId]);
 
-    // 处理价格修改
+    // modify price
     const handlePriceChange = (index, newPrice) => {
         const updatedData = { ...extractedData };
-        updatedData.product[index].product_total_price = newPrice; // 更新产品价格
+        updatedData.product[index].product_total_price = newPrice;
         recalculateCategorySubtotals(updatedData);
         setExtractedData(updatedData);
     };
 
-    // 处理类别修改
+    // modify category
     const handleCategoryChange = (index, newCategory) => {
         const updatedData = { ...extractedData };
-        updatedData.product[index].category = newCategory; // 更新类别
+        updatedData.product[index].category = newCategory;
         recalculateCategorySubtotals(updatedData);
         setExtractedData(updatedData);
     };
 
-    // 重新计算类别小计
+    // update subtotal after modify price
     const recalculateCategorySubtotals = (data) => {
         const newCategorySubtotals = data.product.reduce((acc, item) => {
             const category = item.category;
@@ -141,13 +141,13 @@ const Transactions = () => {
 
         data.total_bill.category_subtotals = newCategorySubtotals;
 
-        // 更新总计和最终总计
+        // update total
         const total = Object.values(newCategorySubtotals).reduce((acc, subtotal) => acc + subtotal, 0);
         data.total_bill.total = total;
-        data.total_bill.final_total = total + data.total_bill.tax_amount; // Assuming final total = total + tax
+        data.total_bill.final_total = total + data.total_bill.tax_amount;
     };
 
-    // 确认交易
+    // confirm transactions
     const handleConfirmTransaction = async () => {
         try {
             const finalSummaryData = Object.entries(extractedData.total_bill.category_subtotals).map(([category, amount], index) => {
@@ -160,18 +160,18 @@ const Transactions = () => {
                 };
             });
 
-            finalSummaryData.forEach(async (row, index) => {
+            for (const row of finalSummaryData) {
                 const category = categories.find(cat => cat.name === row.category);
                 if (category) {
                     await autoAddTransaction({
                         category_id: category.id,
-                        types: 'expense', // 假设所有交易都是支出
+                        types: 'expense',
                         amount: parseFloat(row.amount).toFixed(2),
                         notes: row.notes,
                         occu_date: row.occu_date,
                     });
                 }
-            });
+            }
 
             alert('Transactions successfully saved!');
             fetchTransactionsAndCategories();
@@ -189,7 +189,7 @@ const Transactions = () => {
         };
         setSummaryData(updatedSummaryData);
     };
-    // 自动添加交易
+    // add transaction
     const autoAddTransaction = async ({ category_id, types, amount, notes, occu_date }) => {
         try {
             await api.post('/transactions/', {
@@ -201,7 +201,7 @@ const Transactions = () => {
             });
             setNewTransaction({ category_id: '', types: 'expense', amount: '', notes: '', occu_date: '' });
             setShowAddForm(false);
-            fetchTransactionsAndCategories(); // 添加交易后刷新列表
+            fetchTransactionsAndCategories();
         } catch (err) {
             setError('Failed to add transaction');
         }
@@ -217,7 +217,7 @@ const Transactions = () => {
         }
     };
 
-    // 添加交易
+    // add transaction manually
     const handleAddTransaction = async () => {
         try {
             await api.post('/transactions/', {
@@ -232,7 +232,7 @@ const Transactions = () => {
         }
     };
 
-    // 加载状态
+    // loading
     if (loading) {
         return (
             <div className="loading-container">
