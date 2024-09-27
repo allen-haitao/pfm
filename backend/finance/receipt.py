@@ -68,6 +68,44 @@ class Invoice(BaseModel):
     )
 
 
+def dynamodb_to_python(data):
+    """
+    将 DynamoDB 格式的数据递归转换为普通的 Python 数据类型
+    """
+    if isinstance(data, dict):
+        # 处理每种不同的数据类型
+        if "S" in data:
+            return data["S"]  # String
+        elif "N" in data:
+            return float(
+                data["N"]
+            )  # Number 转换为 float，如果是 int 可以用 int(data['N'])
+        elif "M" in data:
+            # Map 递归处理，将所有子元素处理为普通 Python 类型
+            return {k: dynamodb_to_python(v) for k, v in data["M"].items()}
+        elif "L" in data:
+            # List 递归处理，将所有列表中的元素处理为普通 Python 类型
+            return [dynamodb_to_python(item) for item in data["L"]]
+        elif "BOOL" in data:
+            return data["BOOL"]  # Boolean
+        elif "NULL" in data:
+            return None  # Null
+        else:
+            raise TypeError(f"无法处理的数据类型: {data}")
+    elif isinstance(data, list):
+        # 处理列表
+        return [dynamodb_to_python(item) for item in data]
+    else:
+        return data  # 对于其他普通数据类型直接返回
+
+
+def convert_dynamodb_item(item):
+    """
+    递归将 DynamoDB 的 Item 数据格式转换为普通的 Python 数据类型
+    """
+    return {k: dynamodb_to_python(v) for k, v in item.items()}
+
+
 def convert_to_floats(data):
     """
     递归地将数据中的 Decimal 类型转换为 float 类型
@@ -84,7 +122,8 @@ def convert_to_floats(data):
 
 # convert data to object
 def process_result(resultstr):
-    invoice_data = convert_to_floats(resultstr)
+    invoice_data = convert_dynamodb_item(resultstr)
+    invoice_data = convert_to_floats(invoice_data)
     invoice = Invoice(**invoice_data)
 
     return invoice
