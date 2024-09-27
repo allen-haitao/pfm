@@ -267,8 +267,8 @@ class TransactionViewSet(viewsets.ModelViewSet):
 
             task_status = response["Item"]["status"]
             task_result = response["Item"].get("result")
-            if task_result is not None:
-                process_result(task_result)
+            # if task_result is not None:
+            #    process_result(task_result)
 
             return Response(
                 {"task_id": task_id, "status": task_status, "result": task_result},
