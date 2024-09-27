@@ -91,10 +91,13 @@ def dynamodb_to_python(data):
         elif "NULL" in data:
             return None  # Null
         else:
-            raise TypeError(f"无法处理的数据类型: {data}")
+            raise TypeError(f"Invalidate Data: {data}")
     elif isinstance(data, list):
         # 处理列表
         return [dynamodb_to_python(item) for item in data]
+    elif isinstance(data, Decimal):
+        # 处理 Decimal 类型
+        return float(data)
     else:
         return data  # 对于其他普通数据类型直接返回
 
@@ -122,8 +125,8 @@ def convert_to_floats(data):
 
 # convert data to object
 def process_result(resultstr):
-    invoice_data = convert_dynamodb_item(resultstr)
-    invoice_data = convert_to_floats(invoice_data)
+    # invoice_data = convert_dynamodb_item(resultstr)
+    invoice_data = convert_to_floats(resultstr)
     invoice = Invoice(**invoice_data)
 
     return invoice
