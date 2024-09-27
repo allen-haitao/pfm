@@ -10,6 +10,7 @@ import os
 from typing import List, Dict
 from pydantic import BaseModel, Field
 import ast
+from decimal import Decimal
 
 
 # the  data models
@@ -81,7 +82,9 @@ def convert_to_floats(data):
         return data
 
 
+# convert data to object
 def process_result(resultstr):
     invoice_data = convert_to_floats(resultstr)
     invoice = Invoice(**invoice_data)
+
     return invoice
