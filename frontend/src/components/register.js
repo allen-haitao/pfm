@@ -1,3 +1,10 @@
+/**
+ * @file register.js
+ * @description user register 
+ * @author Haitao Wang
+ * @date 2024-08-21
+ */
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';

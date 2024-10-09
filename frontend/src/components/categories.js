@@ -1,3 +1,10 @@
+/**
+ * @file categories.js
+ * @description categories frontend
+ * @author Haitao Wang
+ * @date 2024-8-25
+ */
+
 import React, { useState, useEffect } from 'react';
 import api from '../services/api'; // Import the api module
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

@@ -1,7 +1,7 @@
 """
 File: user.py
 Author: Haitao Wang
-Date: 2024-09-18
+Date: 2024-08-18
 Description: The user view, include login, register and profile
 """
 

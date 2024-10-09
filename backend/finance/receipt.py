@@ -1,7 +1,7 @@
 """
 File: receipt.py
 Author: Haitao Wang
-Date: 2024-09-18
+Date: 2024-09-05
 Description: Integration of GPT-4o model for recognizing supermarket shopping tickets, classification and extraction of expenses
 the process is moving to AWS Lamda, here only process the result
 """
@@ -70,21 +70,18 @@ class Invoice(BaseModel):
 
 def dynamodb_to_python(data):
     """
-    将 DynamoDB 格式的数据递归转换为普通的 Python 数据类型
+    Recursively converting DynamoDB-formatted data to normal Python datatypes
     """
     if isinstance(data, dict):
-        # 处理每种不同的数据类型
         if "S" in data:
             return data["S"]  # String
         elif "N" in data:
-            return float(
-                data["N"]
-            )  # Number 转换为 float，如果是 int 可以用 int(data['N'])
+            return float(data["N"])  # Number to float
         elif "M" in data:
-            # Map 递归处理，将所有子元素处理为普通 Python 类型
+            # Map: recursive processing, treats all child elements as normal Python types
             return {k: dynamodb_to_python(v) for k, v in data["M"].items()}
         elif "L" in data:
-            # List 递归处理，将所有列表中的元素处理为普通 Python 类型
+            # List: recursive processing, treats all child elements as normal Python types
             return [dynamodb_to_python(item) for item in data["L"]]
         elif "BOOL" in data:
             return data["BOOL"]  # Boolean
@@ -93,32 +90,32 @@ def dynamodb_to_python(data):
         else:
             raise TypeError(f"Invalidate Data: {data}")
     elif isinstance(data, list):
-        # 处理列表
+        # list
         return [dynamodb_to_python(item) for item in data]
     elif isinstance(data, Decimal):
-        # 处理 Decimal 类型
+        # Decimal
         return float(data)
     else:
-        return data  # 对于其他普通数据类型直接返回
+        return data
 
 
 def convert_dynamodb_item(item):
     """
-    递归将 DynamoDB 的 Item 数据格式转换为普通的 Python 数据类型
+    Recursively converting DynamoDB's Item data format to normal Python data types
     """
     return {k: dynamodb_to_python(v) for k, v in item.items()}
 
 
 def convert_to_floats(data):
     """
-    递归地将数据中的 Decimal 类型转换为 float 类型
+    Recursively convert Decimal types in data to float types
     """
     if isinstance(data, list):
         return [convert_to_floats(item) for item in data]
     elif isinstance(data, dict):
         return {key: convert_to_floats(value) for key, value in data.items()}
     elif isinstance(data, Decimal):
-        return float(data)  # 将 Decimal 转换为 float
+        return float(data)  # Decimal to float
     else:
         return data
 

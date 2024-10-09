@@ -1,3 +1,10 @@
+/**
+ * @file navbar.js
+ * @description navigate bar of the app
+ * @author Haitao Wang
+ * @date 2024-09-18
+ */
+
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartLine, faDashboard, faExchange, faTags, faUser, faPiggyBank, faRegistered, faSignIn, faSignOut, faUserPlus } from '@fortawesome/free-solid-svg-icons';

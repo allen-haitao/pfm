@@ -21,6 +21,7 @@ from .views import (
 from rest_framework import permissions, routers
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+# the vercel runtime environment do not support drf_yasg, so comment these part.
 # from drf_yasg.views import get_schema_view
 # from drf_yasg import openapi
 from finance import views

@@ -1,3 +1,11 @@
+/**
+ * @file profile.js
+ * @description user profile
+ * @author Haitao Wang
+ * @date 2024-8-22
+ */
+
+
 import React, { useState, useEffect } from 'react';
 import api from '../services/api'; // Import the api module
 import './Profile.css';
